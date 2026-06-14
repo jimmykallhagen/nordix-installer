@@ -1,0 +1,293 @@
+
+##!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!##
+
+    * A BIG THANK YOU TO EVERYONE WHO CONTRIBUTED TO MAKING THE 10 MILLION DOLLARS ZFS POSSIBLE - THE FINAL FILESYSTEM  * 
+
+     • Sun Microsystems - Solaris: The OG ZFS lords
+      
+     • Oracle: Current ZFS lords
+        https://www.oracle.com
+         
+     • OpenZFS: The primary driver and the largest platform for ZFS development today - Linux, FreeBSD, macOS 
+        https://github.com/openzfs/zfs
+      
+     • iXsystems: The company behind TrueNAS (both CORE and SCALE).
+        https://www.ixsystems.com/
+
+     • Delphix: A company that sells data solutions and employs many of the original ZFS developers.
+        https://www.perforce.com/products/delphix - formerly: delphix.com
+
+     • Klara Systems: Specialists in FreeBSD and OpenZFS.
+        https://klarasystems.com/
+
+     • Intel & Lawrence Livermore National Laboratory: Often contributes performance improvements and features for supercomputers (such as dRAID).
+        https://www.llnl.gov/
+
+##!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!##
+
+
+##**********************************************************************************************************************************##
+ #                                                                                                                                  #
+ #     *** Please read this short ZGuide before installing Nordix, so that the system is as customized for you as possible ***      #
+ #                                                                                                                                  #
+ #                                           You can find complete documentation at:                                                #
+ #                              https://openzfs.github.io/openzfs-docs/Basic%20Concepts/VDEVs.html                                  #
+ #                                                                                                                                  #
+##**********************************************************************************************************************************##
+
+
+    • You will be able to return to this info later if you need to take an extra look.                        
+
+
+##==================================================================================================================================##
+ #            ZFS is not like a traditional file system, ZFS is a separate system of its own that happens to handle files.          #
+ #       You can think of it like in a standard system you have your system (Linux kernel) and this manages your file system.       #
+ #                                      when you have a system with ZFS you have two systems                                        #
+ #         The Linux kernel manages your system and ZFS thatmanages your devices and presents a filesystem to the Linux kernel.     #
+ #                        Unlike regular file systems that work with files, ZFS works with blocks instead,                          #
+ #           This provides enormous advantages and only your imagination sets the limit for what is possible to use ZFS for.        #
+ #                                                                                                                                  #
+ #                           ZFS will become an active friend in your system that will never let you down                           #
+##==================================================================================================================================##
+
+
+    • According to the OpenZFS documentation, it is recommended to give ZFS the entire drive.
+    • You will achieve better performance and reliability by placing the Boot/FAT32 partition on a separate device
+     (like a dedicated USB stick) rather than on the same drive as your ZFS pool.
+    • This is confirmed by my own tests as well
+
+
+                   * Dedicating a USB stick to zfsbootmenu is your best option, then you give ZFS full control *
+
+#====================================================================================================================================#
+                                                      Vdev - Virtual Devices
+How do vdevs relate to storage pools?
+Vdevs are the building blocks of ZFS storage pools.
+A storage pool (zpool) is created by combining one or more top-level vdevs.
+The overall performance, capacity, and redundancy of the storage pool depend on the configuration and types of vdevs used.
+
+"Taken from: https://openzfs.github.io/openzfs-docs/Basic%20Concepts/VDEVs.html"
+
+
+#====================================================================================================================================#
+
+
+##==================================================================================================================================##
+ #                                           A zpool consists of one or more drives.                                                #
+ #                     If you have multiple drives in your PC, there are a number of options that ZFS offers.                       #
+##==================================================================================================================================##
+For the initial release, Nordix supports the most common and battle-tested layouts for desktop use.
+Advanced layouts like RAIDZ2/3 and dRAID are planned for future updates.
+
+#=================================#
+ In Nordix You can choose between:
+
+   • Single drive
+   • Stripe (Raid0)
+   • Mirror (2 Drives)
+   • Stripe + Mirror
+   • RAIDZ (RAID5)
+
+#=================================#
+
+
+##==================================================================================================================================##
+ #                   ZFS is designed for enterprise, you often see that it is not recommended to run ZFS stripe,                    #
+ #              for a regular home PC, stripe is not anything more dangerous than running a single drive as normal                  #
+ #                          however, you have no redundancy so if you need redundancy, do not choose stripe                         #
+##==================================================================================================================================##
+
+
+                         #===============================================================================#
+                          # Nordix recommends Stripe, you get the highest performance and storage space #
+                         #===============================================================================#
+
+
+#=================================#
+# The different ZFS Vdevs layouts #
+#=================================#==================================================================================================#
+
+   • STRIPE:
+      2 or more drives. All storage space and highest performance, no fault tolerance
+
+   • MIRROR:
+      Needs 2 drive. Half storage space and high read speed but standard write speed, fault tolerance 1 drive
+
+   • STRIPE + MIRROR:
+      Striped mirror pool is a large, fast, reliable but expensive storage space. Half storage space, can lose a disk on each mirror.
+
+   • RAIDZ:
+      Raidz fits as large, reliable, relatively cheap storage.
+      Raidz sometimes called RAIDZ1, is most similar to a traditional RAID5 and requires minimum of 3 disks to be meaningful.
+      Like in a regular RAID5, every "row" along with the data blocks stores a parity function calculated over the data blocks
+      which allows a system to survive a single disk failure.
+
+   • RAIDZ2: 
+      RAIDZ2 is a large, highly reliable, relatively expensive storage, which requires a minimum of 4 disks to be meaningful.
+      RAIDZ2 is like RAID6 – allows to survive a double disk failure at the expense of storing two different parity functions.
+      All considerations about block placement pattern and block size are the same as for a RAIDZ. 
+
+   • RAIDZ3
+      Needs 5 Drives to be meaningful. Triple parity RAID.
+      Although back in 2009 people discussed that triple-parity RAID should replace the traditional RAID5/6 and ensure data integrity even during massive hardware failures or during long resilvering processes. Had even proposed a name – RAID7
+      only in the ZFS environment the triple-parity RAID idea has been developed and implemented in full.
+      With RAIDZ3, you can create a storage system, which allows to tolerate 3 disk failures before losing data. 
+
+   • dRAID
+      Distributed RAID. A vdev that provides distributed parity and hot spares across multiple drives
+      allowing for much faster rebuild performance after a failure. (For large arrays only)
+
+
+Klara has excellent documentation on this topic:
+  https://klarasystems.com/articles/openzfs-understanding-zfs-vdev-types/
+
+
+
+#====================================================================================================================================#
+
+
+#====================================================#
+# ZFS offers alternative usage for drives like SSD's #
+#====================================================#===============================================================================#
+
+                    *** Don't partition your fast NVMe, use Zvols to accelerate your HDD storage ***
+
+   • SPECIAL VDEV  (The Game Changer for HDD!)
+      A drive that store only metadata and optional small files
+
+   • USAGE: Game changer on HDD zpools, use only in very specific cases on NVME
+
+   • EXAMPLE FOR SSD: If you have two 1 TB gen3 NVME and one smaller 500GB gen4 NVME
+      use the gen3 in stripe and add the gen4 as special vdev for metadata and small files < 64k/128k/256k. 
+      Or one gen5 and two gen4 NVME
+      The same principle can be used if you have one NVME
+      and a larger zpool of SATA SSD use the NVME as special vdev for the SATA SSD zpool.
+
+
+   • If you have a zpool consisting of one or more HDD - USE SPECIAL VDEV 
+
+
+                             !! Always mirror your Special VDEV if your data is important!!
+      !! The special vdev gets married to your zpool, if you remove it or your special vdev drive dies, your zpool dies !!
+
+
+--------------------------------------------------------------------------------------------------------------------------------------
+
+   • SLOG (Log)
+      All ZFS pools have a built-in log called the ZIL (ZFS Intent Log),
+      which is stored on the pool's regular hard drives for security reasons.
+      An SLOG is simply a separate and much faster disk that you assign to this task
+      When to use it: It is used only for synchronous writes. This is common in environments with databases,
+      virtualization (such as Qemu/Virt-manager or Proxmox),
+      and nil sharing via NFS and iSCSI. Performance boost: Since ZFS guarantees that data is safely in the log immediately,
+      the system does not have to wait for the hard drives to write data to its final destination. This significantly reduces latency
+
+   • USAGE: In a home PC, there is not much need for a slog if you run your system on NVME.
+      If you have a zpool consisting of one or more HDD you can use it to minimize latency and increase performance.
+      HHD storage/system zpool - Use Slog 
+
+
+--------------------------------------------------------------------------------------------------------------------------------------
+
+   • L2ARC (Cache)
+      Level 2 Adaptive Replacement Cache, is an OpenZFS feature that extends the main memory (ARC)
+      cache onto faster storage media, like SSDs or NVMe drives.
+      It is designed to accelerate read performance for large,
+      random read workloads by holding frequently accessed data that overflows from your system's RAM.
+      RAM Overhead: Every block stored in the L2ARC requires an in-memory header in the primary ARC
+      (approximately 96 to 116 bytes per block, depending on the ZFS version) so ZFS knows where to find it.
+      If your PC is low on RAM, adding an enormous L2ARC can starve your primary cache
+
+   • USAGE: Do not use L2arc in a home PC except for HHD zpools. 
+      If you have a zpool consisting of one or more HDD use L2ARC!
+
+
+                       *** Don't partition your fast NVMe, use Zvols to accelerate your HDD storage ***  
+
+
+--------------------------------------------------------------------------------------------------------------------------------------
+
+   • Spare
+     A drive that acts as a hot spare, automatically replacing a failed drive in another vdev.
+
+
+--------------------------------------------------------------------------------------------------------------------------------------
+
+   • Dedup
+      A vdev dedicated strictly to storing the Deduplication Table (DDT).
+
+
+--------------------------------------------------------------------------------------------------------------------------------------
+
+   • ZVOL
+      A virtual block device, it is a "real device" for the system, you can use this for many things.
+      let's assume your system is running on one or more SSD/NVME and you want to create a larger HHD zpool for storage
+      you can create ZVOL's on your SSD/NVME zpool and then create Slog, special vedev or L2ARC of these ZVOL's
+      to increase the performance of your HHD storage zpool.
+
+      It is also the absolute best to use for virtual machines,
+      creating a zvol to install a VM on gives you the best you can get for a VM.
+ 
+   • EXAMPLE:
+      you can create a ZVOL and install Windows on it, now you have checksum, ARC cache, snapshots on your windows VM.
+      Your Windows VM now runs faster than a standard Windows with NTFS alone - ZFS is the king
+
+
+                         !! Remember that if you make a Special vdev it cant be removed afterwards !!
+
+
+--------------------------------------------------------------------------------------------------------------------------------------
+
+
+#====================================================================================================================================#
+
+The Nordix installer will create a clone of your system which is recommended to use
+and let the original boot environment left untouched
+
+then you always have a default to return to, like a system restore
+you can do this without affecting your home. 
+
+If you need multiple users on your PC
+the recommended way in Nordix is not to create multiple users
+but instead create a clone of the system and then have separate boot environments,
+It may be necessary to adapt mounting home with legacy mountpoint to not mix up your homes.
+
+The system base snapshots will allow you to create as many different boot environments as you want.
+
+Creating a new boot environment "BE" with ZFS clones does not take up any extra disk space
+you can think of ZFS clones as a virtual boot environment
+
+It is perfectly possible to create multiple BEs for different purposes
+one for Gaming, one for Virtual machines, one for local AI, etc. 
+This is one of the major advantages of ZFS.
+
+New boot environments, system rollback, creating full boot environments from snapshots is easy to do directly from zfsbootmenu.
+Nordix comes with an automatic snapshot system, so you are always ready to quickly restore your system or create new BE
+
+--------------------------------------------------------------------------------------------------------------------------------------
+
+
+              !! There may be extended versions of Nordix that use the system's base snapshot in the future !!
+                            !! so I would recommend not deleting the system's base snapshot. !!
+
+
+#====================================================================================================================================#
+
+
+
+                ##================================================================================================##
+                 # There is a lot more information about ZFS, this is only for guidance before installing Nordix. #
+                ##================================================================================================##
+
+
+
+
+
+
+
+
+
+
+
+
+

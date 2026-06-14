@@ -1,0 +1,14 @@
+#!/bin/bash
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source $SCRIPT_DIR/../gum-lib/gum.conf
+
+gum_pager() {
+gum pager --align=left --height=0 \
+--border="rounded" \
+--background="LIGHT1_GRAY" \
+--padding="0 11" --border-foreground="${G_BASE_COLOR}" < $SCRIPT_DIR/./zfs
+
+}
+
+gum_pager
