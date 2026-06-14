@@ -54,3 +54,17 @@ It works like this that each choose script writes a variable in install.conf whi
 At the time of writing, I don't know if it will work like this:
  - A Linear/Wizard-style flow (similar to FreeBSD): A guided, step-by-step sequence. 
  - A Menu-driven/Non-linear flow (similar to archinstall): A central menu where the user can configure settings in any order before starting the installation.
+
+---
+
+The installer supports:
+ - Single drive
+ - Stripe
+ - Mirror
+ - Mirror + Stripe
+ - RAIDZ
+
+and extra vdevs like:
+ - L2ARC
+ - Special
+ - Slog
