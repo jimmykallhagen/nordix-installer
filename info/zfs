@@ -87,6 +87,10 @@ Advanced layouts like RAIDZ2/3 and dRAID are planned for future updates.
    • Mirror (2 Drives)
    • Stripe + Mirror
    • RAIDZ (RAID5)
+   • RAIDZ2
+   • RAIDZ2
+   • RAIDZ3
+   • dRAID
 
 #=================================#
 
