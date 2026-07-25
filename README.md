@@ -58,15 +58,15 @@ At the time of writing, I don't know if it will work like this:
 ---
 
 The installer supports:
-  • Single drive
-  • Stripe (Raid0)
-  • Mirror (2 Drives)
-  • Stripe + Mirror
-  • RAIDZ (RAID5)
-  • RAIDZ2
-  • RAIDZ2
-  • RAIDZ3
-  • dRAID
+ - Single drive
+ - Stripe (Raid0)
+ - Mirror (2 Drives)
+ - Stripe + Mirror
+ - RAIDZ (RAID5)
+ - RAIDZ2
+ - RAIDZ2
+ - RAIDZ3
+ - dRAID
 
 and extra vdevs like:
  - L2ARC
