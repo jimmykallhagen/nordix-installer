@@ -1,0 +1,84 @@
+#==================================================================================================#
+#                                  ZFS Advanced Setup                                              #
+#==================================================================================================#
+
+ZFS allows you to assign devices to specific roles within a zpool.
+This is a unique feature of ZFS and cannot be compared to traditional SSD caching:
+
+- SLOG (Log vdevs / ZIL): Speed up synchronous writes for VMs, databases or NFS shares
+- L2ARC (Cache vdevs): Add fast SSD storage to cache read requests and reduce disk seeks
+  (L2ARC will add RAM overhead)
+- SPECIAL vdevs: Store filesystem metadata and small files on fast devices to improve speed/latency
+  (Special vdevs cannot be removed without destroying the pool)
+
+Nordix does not support DEDUP vdevs or SPARE vdevs - add these later if needed.
+
+In home PC setups with NVMe, there's often little benefit from these features.
+Its better to stripe multiple NVMe drives directly instead.
+
+Some practical use cases:
+
+- If your Zpool includes HDDs, using these additional vdev types is recommended.
+
+- Mixed NVMe generations (see examples below)
+
+------------------------------------------------------------------------------
+Mixed NVMe Generation Example
+
+Scenario: 2 NVMe Gen3 + 1 NVMe Gen4 as special vdev
+
+Two NVMe Gen3 in stripe performs very close to a single NVMe Gen4 in my benchmarks.
+
+This allows you to utilize different generations of NVMe in your Zpool:
+- Gen3 drives in stripe for main storage (high capacity)
+- Gen4 drive as special vdev for metadata/small files (low latency)
+
+The same applies if you have one Gen5 and several Gen4 NVMe.
+
+Dont forget to set the special vdev recordsize to at least 128K (preferably up to 1MB) to fully utilize the fast drive.
+
+------------------------------------------------------------------------------
+
+------------------------------------------------------------------------------
+Common Setup: Fast Large Zpool with HDD
+
+- 4 high-speed 1-8TB HDD in stripe or stripe+mirror
+
+Special vdev options (for metadata and small files 128K-1MB):
+- 2 SATA SSDs in mirror, OR
+- 1 fast NVMe, OR
+- 2 fast NVMe in mirror (best practice)
+
+This setup provides low latency and good performance regardless of HDD usage.
+                       
+                              ---------
+
+Add this step for systems running on NVMe/SSD but storing data on HDD.
+
+L2ARC options:
+- 1 NVMe 250GB, OR
+- 2x 120GB SATA SSDs in stripe
+
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+as you can see you probably want more sata and nvme ports on your motherboard.
+
+------------------------------------------------------------------------------
+PRO System: HDD Zpool with Dedicated NVMe Pool
+
+HDD pool (for data):
+- 4x 8TB high-speed HDDs in stripe or stripe+mirror
+
+NVMe pool (for system/VMs):
+- 2 fast NVMe in mirror (separate zpool)
+
+The NVMe pool hosts ZVOLs that act like real devices:
+- SLOG: 40GB Zvol
+- L2ARC: 200GB Zvol
+- Special vdev: remainder of drives (128K-1MB recordsize)
+
+Note: This setup requires post-install configuration.
+Guide for ZVOL setup can be found at:
+https://github.com/jimmykallhagen/nordix-ZGuide_guide-to-zfs
+
+------------------------------------------------------------------------------
+

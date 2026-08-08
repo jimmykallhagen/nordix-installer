@@ -1,0 +1,17 @@
+#==================================================================================================#
+#           Nordix: Making Enterprise ZFS Accessible to Everyone                                   #
+#==================================================================================================#
+
+ZFS is designed for enterprise environments, not desktops. Its true power shines when:
+- You need automatic snapshots and rollbacks (no more "I deleted that file!")
+- Data integrity matters (bitrot protection, checksums, auto-repair)
+- You run VMs with ZVOL-backed storage
+- You need advanced caching (L2ARC) or write logging (SLOG)
+- You create a clone of your ZFS pool in seconds when you want to try out a new configuration
+
+Nordix brings this enterprise power to everyone:
+- Simple installer with guided setup
+- ZFSBootMenu for boot environments and rollbacks
+- Advanced vdev options for performance tuning
+
+You don't need to be a ZFS expert to benefit. Nordix does the hard work for you.

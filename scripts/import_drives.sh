@@ -13,23 +13,7 @@ get_disk_info() {
     echo "${model} - ${size}"
 }
 
-#get_by_id_path() {
-#    local disk_name="$1"
-#    local by_id_path=""
-#    
-#    for id_path in /dev/disk/by-id/*; do
-#        if [[ "$(readlink -f "$id_path")" == "/dev/$disk_name" ]]; then
-#            if [[ "$id_path" =~ (wwn-|nvme-eui\.) ]]; then
-#                echo "$id_path"
-#                return
-#            elif [[ -z "$by_id_path" ]]; then
-#                by_id_path="$id_path"
-#            fi
-#        fi
-#    done
-#    
-#    echo "$by_id_path"
-#}
+
 get_by_id_path() {
     local disk_name="$1"
     

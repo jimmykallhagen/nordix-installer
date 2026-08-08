@@ -1,0 +1,545 @@
+#!/bin/bash
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source $SCRIPT_DIR/../gum-lib/gum.conf
+source $SCRIPT_DIR/../config/drives.conf
+CONFIG_DIR="${SCRIPT_DIR}/../config"
+MASTER_LIST="${CONFIG_DIR}/device-list-vdev.conf"
+BOOT_FILE="${CONFIG_DIR}/selected_drives.conf"
+OUTPUT_FILE_ADVANCE="${CONFIG_DIR}/device-list-extra-vdev.conf"
+OUTPUT_FILE="${CONFIG_DIR}/device-list-vdev.conf"
+unset ZPOOL CHOICE
+
+# Set base color for the installer
+echo -ne "\e]10;${G_BASE_COLOR}\a"
+# Help section
+
+# Nordix intro
+gum_pager "
+#==================================================================================================#
+#           Nordix: Making Enterprise ZFS Accessible to Everyone                                   #
+#==================================================================================================#
+
+ZFS is designed for enterprise environments, not desktops. Its true power shines when:
+- You need automatic snapshots and rollbacks (no more "I deleted that file!")
+- Data integrity matters (bitrot protection, checksums, auto-repair)
+- You run VMs with ZVOL-backed storage
+- You need advanced caching (L2ARC) or write logging (SLOG)
+- You create a clone of your ZFS pool in seconds when you want to try out a new configuration
+
+Nordix brings this enterprise power to everyone:
+- Simple installer with guided setup
+- ZFSBootMenu for boot environments and rollbacks
+- Advanced vdev options for performance tuning
+
+You don't need to be a ZFS expert to benefit. Nordix does the hard work for you.
+}
+"
+zfs_info() {
+gum_pager "
+#==================================================================================================#
+#                                     VDEVs - What is a VDEV?                                      #
+#==================================================================================================#
+
+A vdev (virtual device) is a fundamental building block of ZFS storage pools.
+It represents a logical grouping of physical storage devices, such as hard drives, SSDs, or partitions.
+
+OpenZFS supports several types of vdevs. Top-level vdevs carry data and provide redundancy:
+
+- ZFS single device: one drive.
+
+- ZFS Stripe: One or more devices striped together (like RAID 0).
+Provides maximum performance but no redundancy. Data will be lost if any device fails.
+
+- ZFS Mirror: Stores identical data on two drives for redundancy. Read performance is roughly doubled, write performance equals a single drive. Half the storage capacity is usable.
+
+- ZFS Stripe + Mirror: Two mirror vdevs striped together. Requires minimum 4 drives. Offers roughly 4x read performance with write performance equivalent to two drives. Half the storage capacity.
+
+----------------------------------------------------------------------------------------------------
+RAIDZ: A vdev that uses parity to provide fault tolerance, similar to traditional RAID 5/6.
+There are three levels of RAIDZ:
+
+- RAIDZ1: Single parity (similar to RAID 5). Minimum 3 disks, recommended 3+.
+- RAIDZ2: Double parity (similar to RAID 6). Minimum 5 disks, recommended 5+.
+- RAIDZ3: Triple parity. Minimum 7 disks, recommended 7+.
+----------------------------------------------------------------------------------------------------
+
+#==================================================================================================#
+#                                   Nordix Performance Guide                                       #
+#==================================================================================================#
+
+- ZFS single drive: gives you one drive performance.
+Performance = Standard disk latency
+Redundancy = 0
+
+- ZFS Stripe goes fast - it offers the absolute highest performance but provides no redundancy.
+All storage capacity is usable.
+Performance = increases with each drive, though not linearly.
+Total throughput rises, but efficiency per drive decreases slightly due to stripe overhead.
+from one drive to two drives, performance doubles,
+and three drives almost three times as fast as a single drive.
+Going beyond three drives and you will start noticing stripe overhead.
+The performance will increase but not as good as it does in the beginning.
+Redundancy = 0.
+
+* ZFS Mirror offers roughly double the read performance with write performance equivalent
+to a single drive. Half the storage capacity is usable.
+Redundancy: can lose 1 drive.
+
+* ZFS Stripe + Mirror offers roughly four times the read performance
+with write performance equivalent to two drives. Half the storage capacity is usable.
+Redundancy = can lose 1 drive per mirror pair.
+
+* ZFS RAIDZ offers good redundancy and storage efficiency but reduced write performance.
+Read performance is decent.
+Storage usage:
+RAIDZ: ~67% usable (3 drives)
+Redundancy = can lose 1 drive.
+RAIDZ2: ~60% usable (5 drives)
+Redundancy = can lose 2 drives.
+RAIDZ3: ~57% usable (7 drives)
+Redundancy = can lose 3 drives.
+
+#==================================================================================================#
+#                  Recommendations: Stripe/mirror for Home PC, RAIDZ for Servers                          #
+#==================================================================================================#
+
+ZFS is designed for enterprise environments with many drives. For home PCs with few drives:
+- Stripe is a viable option for maximum performance and full storage utilization
+- ZFS will close the pool on serious errors (read-only import may still be possible)
+- Nordix have S.M.A.R.T monitoring service activated natively to help detect drive failures early
+- Mirror or RAIDZ are recommended if you need redundancy
+
+Keep experimenting with different configurations:
+- Use ZFS send/receive for backups before testing new setups
+- Restore from backup if something goes wrong
+- The best configuration is the one you learn the most from!
+
+#==================================================================================================#
+#                     Device Compatibility Notes                                                   #
+#==================================================================================================#
+When mixing drives in a vdev:
+
+* HDDs: Mixing different speeds (5400 RPM vs 7200 RPM) is generally fine - the impact is minor.
+  But if you want to run the operating system from an HDD,
+  mixing different speeds can cause bottlenecks.
+
+* SSDs/NVMe: Mixing generations can cause bottlenecks:
+  - NVMe Gen3 + Gen4/Gen5 in stripe: Gen4/Gen5 drives will be limited to Gen3 speeds
+  - NVMe Gen4 + Gen5 in stripe: Gen5 drives will be limited to Gen4 speeds
+  - SATA SSDs: Usually similar speeds so mixing is less of an issue
+
+Recommendation:
+- Best scenario: Use identical drives for best performance and reliability.
+- Good practice: Use devices with the same capacity and speed when mixing in a vdev.
+- Avoid mixing drives from different generations in a vdev.
+- Dont mix HDDs, SSDs and NVMe in the same vdev!
+
+#==================================================================================================#
+#                    PCIe Topology and NVMe Performance                                            #
+#==================================================================================================#
+Note: PCIe lanes can be routed differently depending on your motherboard design:
+- CPU-direct lanes: Direct connection to CPU, lowest latency
+- PCH/chiplet lanes: Through platform controller hub, slightly higher latency
+
+This matters most for performance-focused setups:
+- Stripe/mirror with multiple NVMe: CPU-lanes give best throughput and latency
+- RAIDZ with HDDs or single NVMe: PCIe topology has minimal impact (parity/disk speed dominates)
+
+For redundancy-focused systems (RAIDZ, mirror):
+- The difference between CPU/PCH lanes is negligible compared to disk performance
+- Focus more on drive count and capacity than slot placement
+
+Check your motherboard manual to identify which NVMe slots are CPU-connected for optimal setups.
+
+##=======================##
+ # Press ESC to continue #
+##=======================##
+"
+}
+
+zfs_info_advanced() {
+gum_pager "
+#==================================================================================================#
+#                                  ZFS Advanced Setup                                              #
+#==================================================================================================#
+
+ZFS allows you to assign devices to specific roles within a zpool.
+This is a unique feature of ZFS and cannot be compared to traditional SSD caching:
+
+- SLOG (Log vdevs / ZIL): Speed up synchronous writes for VMs, databases or NFS shares
+- L2ARC (Cache vdevs): Add fast SSD storage to cache read requests and reduce disk seeks
+  (L2ARC will add RAM overhead)
+- SPECIAL vdevs: Store filesystem metadata and small files on fast devices to improve speed/latency
+  (Special vdevs cannot be removed without destroying the pool)
+
+Nordix does not support DEDUP vdevs or SPARE vdevs - add these later if needed.
+
+In home PC setups with NVMe, there's often little benefit from these features.
+Its better to stripe multiple NVMe drives directly instead.
+
+Some practical use cases:
+
+- If your Zpool includes HDDs, using these additional vdev types is recommended.
+
+- Mixed NVMe generations (see examples below)
+
+------------------------------------------------------------------------------
+Mixed NVMe Generation Example
+
+Scenario: 2 NVMe Gen3 + 1 NVMe Gen4 as special vdev
+
+Two NVMe Gen3 in stripe performs very close to a single NVMe Gen4 in my benchmarks.
+
+This allows you to utilize different generations of NVMe in your Zpool:
+- Gen3 drives in stripe for main storage (high capacity)
+- Gen4 drive as special vdev for metadata/small files (low latency)
+
+The same applies if you have one Gen5 and several Gen4 NVMe.
+
+Dont forget to set the special vdev recordsize to at least 128K (preferably up to 1MB) to fully utilize the fast drive.
+
+------------------------------------------------------------------------------
+
+------------------------------------------------------------------------------
+Common Setup: Fast Large Zpool with HDD
+
+- 4 high-speed 1-8TB HDD in stripe or stripe+mirror
+
+Special vdev options (for metadata and small files 128K-1MB):
+- 2 SATA SSDs in mirror, OR
+- 1 fast NVMe, OR
+- 2 fast NVMe in mirror (best practice)
+
+This setup provides low latency and good performance regardless of HDD usage.
+
+- - -
+------------------------------------------------------------------------------
+Add this step for systems running on NVMe/SSD but storing data on HDD.
+
+L2ARC options:
+- 1 NVMe 250GB, OR
+- 2x 120GB SATA SSDs in stripe
+
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+as you can see you probably want more sata and nvme ports on your motherboard.
+
+------------------------------------------------------------------------------
+PRO System: HDD Zpool with Dedicated NVMe Pool
+
+HDD pool (for data):
+- 4x 8TB high-speed HDDs in stripe or stripe+mirror
+
+NVMe pool (for system/VMs):
+- 2 fast NVMe in mirror (separate zpool)
+
+The NVMe pool hosts ZVOLs that act like real devices:
+- SLOG: 40GB Zvol
+- L2ARC: 200GB Zvol
+- Special vdev: remainder of drives (128K-1MB recordsize)
+
+Note: This setup requires post-install configuration.
+Guide for ZVOL setup can be found at:
+https://github.com/jimmykallhagen/nordix-ZGuide_guide-to-zfs
+
+------------------------------------------------------------------------------
+"
+}
+
+# Choose options for Zpool layouts
+OPTIONS=(
+"Nordix ZFS Help"
+"ZFS Single          : 1 drive, no redundancy"
+"ZFS Stripe          : 2+ drives, maximum speed, no redundancy (Similar to RAID0)"
+"ZFS Mirror          : 2 drives, fault tolerant (Similar to RAID 1)"
+"ZFS Stripe + Mirror : 4+ drives, fast & safe (Similar to RAID 10)"
+"ZFS RAIDZ           : 3+ drives, balanced safety/space (Similar to RAID 5)"
+"ZFS RAIDZ2          : 5+ drives, balanced safety/space (Similar to RAID 6)"
+"ZFS RAIDZ3          : 7+ drives, balanced safety/space"
+
+)
+clear
+gum_box "Starting Zpool layout selection"
+gum_spin_timer "Gathering some Zpool layout....."
+
+
+while true; do
+    clear
+    gum_box "Choose Zpool Layouts"
+    #  show the list of zpools layouts with gum_choose
+    CHOICE=$(printf "%s\n" "${OPTIONS[@]}" | gum_choose "Press Enter to choose")
+
+    # handling ESC/no choise
+
+    if [[ -z "$CHOICE" ]]; then
+        clear
+        gum_box_sleep "Please select a layout!" && true
+        continue
+    fi
+
+    # show help
+    if [[ "$CHOICE" == "Nordix ZFS Help" ]]; then
+        clear
+        gum_spin_timer "Gather info..." && true
+        zfs_info
+        gum_spin_timer "Now you know..."
+        continue
+    fi
+
+    # Map the choice to a variable and break the loop
+    case "$CHOICE" in
+        "ZFS Single          : 1 drive, no redundancy")                                       ZPOOL="single" ;;
+        "ZFS Stripe          : 2+ drives, maximum speed, no redundancy (Similar to RAID0)")   ZPOOL="stripe" ;;
+        "ZFS Mirror          : 2 drives, fault tolerant (Similar to RAID 1)")                 ZPOOL="zfs-mirror" ;;
+        "ZFS Stripe + Mirror : 4+ drives, fast & safe (RAID 10)")                             ZPOOL="stripe-mirror" ;;
+        "ZFS RAIDZ           : 3+ drives, balanced safety/space (Similar to RAID 5)")         ZPOOL="zfs-raidz" ;;
+        "ZFS RAIDZ2          : 5+ drives, balanced safety/space (Similar to RAID 6)")         ZPOOL="zfs-raidz2" ;;
+        "ZFS RAIDZ3          : 7+ drives, balanced safety/space")                             ZPOOL="zfs-raidz3" ;;
+    esac
+
+    # Confirm the selected layout
+    if gum_confirm "Confirm zpool vdev Layout: $ZPOOL?"; then
+        break
+    fi
+done
+
+# Write selectet layout to zpool.conf
+sed -i '/^ZPOOL=/d' "${CONFIG_DIR}/selected-zpool-layout.conf"
+echo "ZPOOL=\"$ZPOOL\"" >> "${CONFIG_DIR}/selected-zpool-layout.conf"
+
+# Now we're done, clear the screen and show a completion message
+clear
+gum_spin_timer "Zpool layout selection complete"
+
+#---------------------------------------------------------------------------##
+######################################
+# Advanced ZFS vdev Selection        #
+######################################
+
+# Arrays to track selected extra devices for each vdev type
+declare -A EXTRA_DEVICES
+declare -a EXTRA_VDEVs=()
+
+while true; do
+    clear
+    
+    gum_box "Advanced ZFS vdev Selection: Special Vdev, L2ARC, SLOG"
+    
+    # Build options dynamically based on what's already selected
+    OPTIONS_ADVANCED=(
+        "Nordix ZFS Additional vdev's help"
+        ""
+    )
+    
+    # Add available vdev types (not yet selected)
+    [[ -z "${EXTRA_VDEVs[slog]}" ]] && OPTIONS_ADVANCED+=("SLOG")
+    [[ -z "${EXTRA_VDEVs[l2arc]}" ]] && OPTIONS_ADVANCED+=("L2ARC") 
+    [[ -z "${EXTRA_VDEVs[special]}" ]] && OPTIONS_ADVANCED+=("Special Vdev")
+    
+    # Only show Continue if we have at least one selection
+    if [[ ${#EXTRA_VDEVs[@]} -gt 0 ]]; then
+        OPTIONS_ADVANCED+=("")
+        OPTIONS_ADVANCED+=("Continue to drive selection")
+    fi
+    
+    OPTIONS_ADVANCED+=("Exit without changes")
+
+    CHOICE_ADVANCED=$(printf "%s\n" "${OPTIONS_ADVANCED[@]}" | gum_choose "Press Enter to choose (or Exit)")
+
+    # handling ESC/no choise
+    if [[ -z "$CHOICE_ADVANCED" ]]; then
+        continue
+    fi
+
+    case "$CHOICE_ADVANCED" in
+        "Nordix ZFS Additional vdev's help")
+            clear
+            gum_spin_timer "Gather info..." && true
+            zfs_info_advanced
+            gum_spin_timer "Now you know..."
+            ;;
+        "SLOG")
+            gum_box "Select device(s) for SLOG (write log)"
+            slog_choice=$(printf "%s\n" "${options_devices[@]}" | gum_choose)
+            if [[ -n "$slog_choice" ]]; then
+                EXTRA_DEVICES[slog]="${drive_map[$slog_choice]}"
+                EXTRA_VDEVs+=("slog")
+                echo "SLOG device: $slog_choice"
+            fi
+            ;;
+        "L2ARC")
+            gum_box "Select device(s) for L2ARC (read cache)"
+            l2rc_choice=$(printf "%s\n" "${options_devices[@]}" | gum_choose)
+            if [[ -n "$l2arc_choice" ]]; then
+                EXTRA_DEVICES[l2arc]="${drive_map[$l2rc_choice]}"
+                EXTRA_VDEVs+=("l2arc")
+                echo "L2ARC device: $l2rc_choice"
+            fi
+            ;;
+        "Special Vdev")
+            gum_box "Select device(s) for Special vdev (metadata/small files)"
+            special_choice=$(printf "%s\n" "${options_devices[@]}" | gum_choose)
+            if [[ -n "$special_choice" ]]; then
+                EXTRA_DEVICES[special]="${drive_map[$special_choice]}"
+                EXTRA_VDEVs+=("special")
+                echo "Special device: $special_choice"
+            fi
+            ;;
+        "Continue to drive selection")
+            break  # Exit loop and continue with main drive selection
+            ;;
+        "Exit without changes")
+            EXTRA_DEVICES=()
+            EXTRA_VDEVs=()
+            break  # Exit without selecting any extra vdevs
+            ;;
+    esac
+done
+
+# Store selected extra devices to config if any were chosen
+if [[ ${#EXTRA_VDEVs[@]} -gt 0 ]]; then
+    for vdev_type in "${EXTRA_VDEVs[@]}"; do
+        echo "EXTRA_${vdev_type^^}=${EXTRA_DEVICES[$vdev_type]}" >> "$INSTALL_DIR/install.conf"
+    done
+fi
+
+gum_box "Advanced selection complete. Proceeding to zpool drive selection..."
+    "L2ARC"
+    "SLOG"
+    ""
+    "Exit"
+)
+while true; do
+    clear
+    gum_box "Choose Additional vdev's"
+    #  show the list of zpools layouts with gum_choose
+    CHOICE_ADVANCED=$(printf "%s\n" "${OPTIONS_ADVANCED[@]}" | gum_choose "Press Enter to choose")
+
+    # handling ESC/no choise
+    if [[ -z "$CHOICE_ADVANCED" ]]; then
+        clear
+        gum_box_sleep "Please select an additional vdev!" && true
+        continue
+    fi
+
+    # show help
+    if [[ "$CHOICE_ADVANCED" == "Nordix ZFS Additional vdev's help" ]]; then
+        clear
+        gum_spin_timer "Gather info..." && true
+        zfs_info_advanced
+        gum_spin_timer "Now you know..."
+        continue
+    fi
+
+
+##---------------------------------------------------------------------------##
+######################################
+# Chose devices/drives for the zpool #
+######################################
+
+
+
+clear
+
+# Get the drives/devices in human readable format
+declare -A drive_map
+
+options_devices=()
+count=1
+while true; do
+    var_name="DRIVE_${count}"
+    drive_value="${!var_name}"
+
+    if [[ -z "$drive_value" ]]; then
+        break
+    fi
+
+    #  by-id
+    by_id="${drive_value%% *}"                     # "/dev/disk/by-id/ata-Samsung..."
+    human_readable="${drive_value#* }"             # "Samsung SSD 860 EVO - 465.8G"
+
+    drive_map["${human_readable}"]="$by_id"
+    options_devices+=("${human_readable}")
+
+    ((count++))
+done
+# Validate minimum/maximum drives based on ZPOOL layout
+get_min_max_drives() {
+    case "$ZPOOL" in
+        "single")       echo "1 1" ;;   # max 1 drive
+        "stripe")       echo "2 999" ;; # min 2, no real max
+        "zfs-mirror")   echo "2 2" ;;   # exactly 2 drives
+        "stripe-mirror") echo "4 4" ;;  # exactly 4 drives
+        "zfs-raidz")    echo "3 999" ;; # min 3, no real max
+        "zfs-raidz2")   echo "5 999" ;; # min 5, no real max
+        "zfs-raidz3")   echo "7 999" ;; # min 7, no real max
+    esac
+}
+
+read MIN_DRIVES MAX_DRIVES <<< $(get_min_max_drives)
+
+echo "Layout: $ZPOOL requires minimum $MIN_DRIVES and maximum $MAX_DRIVES drives"
+
+# Read previously selected drives count (if any)
+declare -a drive_choices=()
+while IFS= read -r choice; do
+    drive_choices+=("$choice")
+done <<< "$selected_drives"
+
+current_count=${#drive_choices[@]}
+
+# Check if previous selection is valid, otherwise clear it
+if [[ $current_count -lt $MIN_DRIVES || $current_count -gt $MAX_DRIVES ]]; then
+    selected_drives=""
+fi
+
+while true; do
+    clear
+    gum_box "$ZPOOL (requires $MIN_DRIVES-$MAX_DRIVES drives)"
+
+    if [[ -z "$selected_drives" ]]; then
+        selected_drives=$(printf "%s\n" "${options_devices[@]}" | gum_choose_no_limit "Select Drives")
+    fi
+
+    # If no drive is selected, show an error and continue
+    if [[ -z "$selected_drives" ]]; then
+        gum_box_sleep "Please select at least one drive!"
+        continue
+    fi
+
+    # Count selected drives
+    drive_count=0
+    while IFS= read -r line; do
+        [[ -n "$line" ]] && ((drive_count++))
+    done <<< "$selected_drives"
+
+    # Validate drive count
+    if [[ $drive_count -lt $MIN_DRIVES ]]; then
+        gum_box_sleep "Error: $ZPOOL layout requires at least $MIN_DRIVES drives (you selected $drive_count)"
+        selected_drives=""  # Clear selection to retry
+        continue
+    fi
+
+    if [[ $MAX_DRIVES != "999" && $drive_count -gt $MAX_DRIVES ]]; then
+        gum_box_sleep "Error: $ZPOOL layout allows maximum $MAX_DRIVES drives (you selected $drive_count)"
+        selected_drives=""  # Clear selection to retry
+        continue
+    fi
+
+    # Confirm drivers to be installed
+    if gum_confirm "Confirm selected $drive_count drives: $selected_drives?"; then
+        break
+    fi
+    selected_drives=""  # Clear selection to retry
+done
+
+# Clear the selected drives config
+sed -i '/^DRIVE_/d' "$SCRIPT_DIR/../config/selected_drives.conf"
+
+# Write selected by-id to new config
+> $SCRIPT_DIR/../config/selected_drives.conf
+disk_count=1
+
+while IFS= read -r choice; do
+    echo "DRIVE_${disk_count}=${drive_map[$choice]}" >> $SCRIPT_DIR/../config/selected_drives.conf
+    ((disk_count++))
+done <<< "$selected_drives"
