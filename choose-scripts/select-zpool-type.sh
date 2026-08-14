@@ -3,8 +3,11 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source $SCRIPT_DIR/../gum-lib/gum.conf
 ZFS_INFO_ADVANCED="${SCRIPT_DIR}/../info/zfs-info-advanced"
 ZFS_INFO_VDEV="${SCRIPT_DIR}/../info/zfs-info-vdev"
+MASTER_LIST="$SCRIPT_DIR/../config/selected_drives.conf"
 source $SCRIPT_DIR/../config/drives.conf
+
 CONFIG_DIR="${SCRIPT_DIR}/../config"
+
 
 unset ZPOOL CHOICE
 
@@ -17,13 +20,13 @@ echo -ne "\e]10;${G_BASE_COLOR}\a"
 # Choose options for Zpool layouts
 OPTIONS=(
 "Nordix ZFS Help"
-"ZFS Single          : 1 drive, no redundancy"
-"ZFS Stripe          : 2+ drives, maximum speed, no redundancy (Similar to RAID0)"
-"ZFS Mirror          : 2 drives, fault tolerant (Similar to RAID 1)"
+"ZFS Single : 1 drive, no redundancy"
+"ZFS Stripe : 2+ drives, maximum speed, no redundancy (Similar to RAID0)"
+"ZFS Mirror : 2 drives, fault tolerant (Similar to RAID 1)"
 "ZFS Stripe + Mirror : 4+ drives, fast & safe (Similar to RAID 10)"
-"ZFS RAIDZ           : 3+ drives, balanced safety/space (Similar to RAID 5)"
-"ZFS RAIDZ2          : 5+ drives, balanced safety/space (Similar to RAID 6)"
-"ZFS RAIDZ3          : 7+ drives, balanced safety/space"
+"ZFS RAIDZ : 3+ drives, balanced safety/space (Similar to RAID 5)"
+"ZFS RAIDZ2 : 5+ drives, balanced safety/space (Similar to RAID 6)"
+"ZFS RAIDZ3 : 7+ drives, balanced safety/space"
 
 )
 clear
@@ -56,17 +59,17 @@ while true; do
 
     # Map the choice to a variable and break the loop
     case "$CHOICE" in
-        "ZFS Single          : 1 drive, no redundancy")                                       ZPOOL="single" ;;
-        "ZFS Stripe          : 2+ drives, maximum speed, no redundancy (Similar to RAID0)")   ZPOOL="stripe" ;;
-        "ZFS Mirror          : 2 drives, fault tolerant (Similar to RAID 1)")                 ZPOOL="zfs-mirror" ;;
-        "ZFS Stripe + Mirror : 4+ drives, fast & safe (RAID 10)")                             ZPOOL="stripe-mirror" ;;
-        "ZFS RAIDZ           : 3+ drives, balanced safety/space (Similar to RAID 5)")         ZPOOL="zfs-raidz" ;;
-        "ZFS RAIDZ2          : 5+ drives, balanced safety/space (Similar to RAID 6)")         ZPOOL="zfs-raidz2" ;;
-        "ZFS RAIDZ3          : 7+ drives, balanced safety/space")                             ZPOOL="zfs-raidz3" ;;
+        "ZFS Single : 1 drive, no redundancy")                                       ZPOOL="single" ;;
+        "ZFS Stripe : 2+ drives, maximum speed, no redundancy (Similar to RAID0)")   ZPOOL="stripe" ;;
+        "ZFS Mirror : 2 drives, fault tolerant (Similar to RAID 1)")                 ZPOOL="zfs-mirror" ;;
+        "ZFS Stripe + Mirror : 4+ drives, fast & safe (RAID 10)")                    ZPOOL="stripe-mirror" ;;
+        "ZFS RAIDZ : 3+ drives, balanced safety/space (Similar to RAID 5)")          ZPOOL="zfs-raidz" ;;
+        "ZFS RAIDZ2 : 5+ drives, balanced safety/space (Similar to RAID 6)")         ZPOOL="zfs-raidz2" ;;
+        "ZFS RAIDZ3 : 7+ drives, balanced safety/space")                             ZPOOL="zfs-raidz3" ;;
     esac
 
     # Confirm the selected layout
-    if gum_confirm "Confirm zpool vdev Layout: $ZPOOL?"; then
+    if gum_confirm "Confirm zpool vdev Layout: ${CHOICE}?"; then
         break
     fi
 done
@@ -194,4 +197,4 @@ while IFS= read -r choice; do
 done <<< "$selected_drives"
 
 grep -v -Ff <(cut -d'=' -f2 "${SCRIPT_DIR}/../config/selected_drives.conf") "${MASTER_LIST}" | \
-awk -F'=' 'BEGIN { i=1 } { printf "DRIVE_%d=%s\n", i, $2; i++ }' > " "${SCRIPT_DIR}/../config/additional_drives.conf"
+awk -F'=' 'BEGIN { i=1 } { printf "DRIVE_%d=%s\n", i, $2; i++ }' > "${SCRIPT_DIR}/../config/additional_drives.conf"
