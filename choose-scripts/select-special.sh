@@ -1,39 +1,40 @@
 #!/bin/bash
+# ZFS Script 3
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 CONFIG_DIR="${SCRIPT_DIR}/../config"
-MASTER_LIST="${CONFIG_DIR}/drives.conf"
+MASTER_LIST="${CONFIG_DIR}/additional_drives_special.conf"
 OUTPUT_FILE="$CONFIG_DIR/selected-special-drives.conf"
 OUTPUT_LIST_FILE="${CONFIG_DIR}/device_list_special.conf"
 OUTPUT_FILE_SPECIAL_LAYOUT="${CONFIG_DIR}/special-layout.conf"
 
-source $SCRIPT_DIR/../gum-lib/gum.conf
-source $CONFIG_DIR/drives.conf
+source ${SCRIPT_DIR}/../gum-lib/gum.conf
+source ${MASTER_LIST}
 
 clear
 echo -ne "\e]10;${G_BASE_COLOR}\a"
 
 
-gum_box 'ZFS Special Vdev - Metadata and small files on NVMe/SSD'
+gum_box "ZFS Special Vdev - Metadata and small files on NVMe/SSD - Game changer for performance on HDD's"
 
-if gum_confirm 'Do you want to add a Special Vdev to your zpool?'; then
+if gum_confirm "Do you want to add a Special Vdev to your zpool?"; then
 
 gum_spin_timer "Proceeding with Special Vdev setup"
 
-# options for slog
+# options for Special Vdev
 OPTIONS=(
 "SPECIAL - Single    : 1 drive, no redundancy"
 "SPECIAL - Stripe    : 2+ drives, maximum speed, no redundancy (Similar to RAID0)"
 "SPECIAL - Mirror    : 2 drives, fault tolerant (Similar to RAID 1)"
 "Exit without Special Vdev"
 )
-gum_box "Starting SLOG layout selection"
-gum_spin_timer "Gathering some SLOG's layout....."
+gum_box "Starting Special Vdev layout selection"
+gum_spin_timer "Gathering some Special Vdev's layout....."
 
 while true; do
     clear
     gum_box "Choose Layout For Special Vdev"
     #  show the list of zpools layouts with gum_choose
-    _SPECIAL=$(printf "%s\n" "${OPTIONS[@]}" | gum_choose "Press Enter to choose")
+    _SPECIAL=$(printf "%s\n" "${OPTIONS[@]}" | gum_choose "Press Enter to choose layout")
 
     # handling ESC/no choise
     if [[ -z "$_SPECIAL" ]]; then
@@ -43,8 +44,8 @@ while true; do
     fi
     if [[ "$_SPECIAL" == "Exit without Special Vdev" ]]; then
         clear
-        #gum_spin_timer "Leaving SLOG..."
-        #gum_spin_timer "Maybe next time."
+        gum_spin_timer "Leaving Special Vdev..."
+    gum_spin_timer "Maybe next time."
         return
     fi
     # Map the choice to a variable and break the loop
@@ -117,7 +118,7 @@ while true; do
     gum_box "$_SPECIAL (requires $MIN_DRIVES-$MAX_DRIVES drives)"
 
     if [[ -z "$selected_special_drives" ]]; then
-        selected_special_drives=$(printf "%s\n" "${options[@]}" | gum_choose_no_limit "Select Drives")
+        selected_special_drives=$(printf "%s\n" "${options[@]}" | gum_choose_no_limit "Select drive with SPACE")
     fi
 
     # If no drive is selected, show an error and continue
@@ -153,8 +154,6 @@ while true; do
 done
 
 
-# Clear the selected drives config
-sed -i '/^DRIVE_/d' "$SCRIPT_DIR/../config/selected-special-drives.conf"
 
 # Write selected by-id to new config
 > ${CONFIG_DIR}/selected-special-drives.conf
@@ -170,12 +169,12 @@ awk -F'=' 'BEGIN { i=1 } { printf "DRIVE_%d=%s\n", i, $2; i++ }' > "${OUTPUT_LIS
 
 clear
 gum_spin_timer 'Configuring special drive is done'
-gum_spin_timer 'A Special Vdev can not be removed'
+gum_spin_timer 'Note: A Special Vdev can not be removed'
 exit 0
 
  else
 # Fix the device list to next step
-cp "${MASTER_LIST}" "${OUTPUT_FILE}"
+cp "${MASTER_LIST}" "${OUTPUT_LIST_FILE}"
 
  clear
  gum_spin_timer "Special Vdev can be added later, but never removed"

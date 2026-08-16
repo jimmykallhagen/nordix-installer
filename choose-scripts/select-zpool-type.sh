@@ -1,12 +1,14 @@
 #!/bin/bash
+# ZFS Script 2
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+CONFIG_DIR="${SCRIPT_DIR}/../config"
 source $SCRIPT_DIR/../gum-lib/gum.conf
 ZFS_INFO_ADVANCED="${SCRIPT_DIR}/../info/zfs-info-advanced"
 ZFS_INFO_VDEV="${SCRIPT_DIR}/../info/zfs-info-vdev"
-MASTER_LIST="$SCRIPT_DIR/../config/selected_drives.conf"
-source $SCRIPT_DIR/../config/drives.conf
+MASTER_LIST="${CONFIG_DIR}/device-list-vdev.conf"
+source "${MASTER_LIST}"
 
-CONFIG_DIR="${SCRIPT_DIR}/../config"
+
 
 
 unset ZPOOL CHOICE
@@ -149,7 +151,7 @@ while true; do
     gum_box "$ZPOOL (requires $MIN_DRIVES-$MAX_DRIVES drives)"
 
     if [[ -z "$selected_drives" ]]; then
-        selected_drives=$(printf "%s\n" "${options_devices[@]}" | gum_choose_no_limit "Select Drives")
+        selected_drives=$(printf "%s\n" "${options_devices[@]}" | gum_choose_no_limit "Select drives with SPACE")
     fi
 
     # If no drive is selected, show an error and continue
@@ -184,8 +186,6 @@ while true; do
     selected_drives=""  # Clear selection to retry
 done
 
-# Clear the selected drives config
-sed -i '/^DRIVE_/d' "$SCRIPT_DIR/../config/selected_drives.conf"
 
 # Write selected by-id to new config
 > $SCRIPT_DIR/../config/selected_drives.conf
@@ -196,5 +196,6 @@ while IFS= read -r choice; do
     ((disk_count++))
 done <<< "$selected_drives"
 
+#gum_box_sleep "Preparing additional drive choices..."
 grep -v -Ff <(cut -d'=' -f2 "${SCRIPT_DIR}/../config/selected_drives.conf") "${MASTER_LIST}" | \
-awk -F'=' 'BEGIN { i=1 } { printf "DRIVE_%d=%s\n", i, $2; i++ }' > "${SCRIPT_DIR}/../config/additional_drives.conf"
+awk -F'=' 'BEGIN { i=1 } { printf "DRIVE_%d=%s\n", i, $2; i++ }' > "${SCRIPT_DIR}/../config/additional_drives_special.conf"

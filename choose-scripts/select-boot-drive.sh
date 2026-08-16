@@ -1,4 +1,5 @@
 #!/bin/bash
+# # ZFS Script 1
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 CONFIG_DIR="${SCRIPT_DIR}/../config"
 MASTER_LIST="${CONFIG_DIR}/drives.conf"
@@ -62,7 +63,7 @@ while IFS= read -r choice; do
     ((disk_count++))
 done <<< "$selected_boot_drive"
 
-# Fix the device list to next step 
+# Fix the device list to next step
   grep -v -Ff <(cut -d'=' -f2 "${BOOT_FILE}") "${MASTER_LIST}" | \
   awk -F'=' 'BEGIN { i=1 } { printf "DRIVE_%d=%s\n", i, $2; i++ }' > "${OUTPUT_FILE}"
 
@@ -74,10 +75,9 @@ exit 0
  else
 # Fix the device list to next step
 cp "${MASTER_LIST}" "${OUTPUT_FILE}"
- 
- clear 
+
+ clear
  gum_spin_timer "Note: This May Impact ZFS Performance"
 
 exit 1
 fi
-
