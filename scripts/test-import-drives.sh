@@ -1,5 +1,6 @@
 #!/bin/bash
-# import drives by /dev/disk/by-id and fallback if Nordix is running in VM
+# nordix-disk-discovery.sh
+
 set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 OUTPUT_FILE=$SCRIPT_DIR/../config/drives.conf
@@ -7,8 +8,9 @@ OUTPUT_FILE=$SCRIPT_DIR/../config/drives.conf
 get_disk_info() {
     local disk_path="$1"
     local model size
-    model=$(lsblk -dno MODEL "$disk_path" 2>/dev/null || echo "Unknown")
+    model=$(lsblk -dno MODEL "$disk_path" 2>/dev/null || echo "")
     size=$(lsblk -dno SIZE "$disk_path" 2>/dev/null || echo "Unknown")
+    [[ -z "$model" ]] && model=$(basename "$disk_path")
     echo "${model} - ${size}"
 }
 
@@ -38,11 +40,7 @@ while IFS= read -r disk; do
 
     disk_name=$(basename "$disk")
     by_id_path=$(get_by_id_path "$disk_name")
-
-    # Fallback for VM where by-id is missing
-    if [[ -z "$by_id_path" ]]; then
-        by_id_path="$disk"
-    fi
+    [[ -z "$by_id_path" ]] && by_id_path="$disk"
 
     disk_info=$(get_disk_info "$disk")
     echo "DRIVE_${count}=\"${by_id_path} ${disk_info}\"" >> "$OUTPUT_FILE"
