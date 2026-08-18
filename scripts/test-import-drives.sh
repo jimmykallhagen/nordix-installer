@@ -13,8 +13,10 @@ for dev in $(lsblk -dpno NAME -t | grep -E '^/dev/(vd|sd|nvme)[a-z0-9]*$'); do
     by_id=$(find /dev/disk/by-id -maxdepth 1 -lname "$dev" -print -quit 2>/dev/null || true)
     [[ -z "$by_id" ]] && by_id="$dev"
 
-    model=$(lsblk -dno MODEL "$dev" 2>/dev/null || echo "Unknown")
-    size=$(lsblk -dno SIZE "$dev" 2>/dev/null || echo "Unknown")
+model=$(lsblk -dno MODEL "$real" 2>/dev/null || echo "")
+size=$(lsblk -dno SIZE "$real" 2>/dev/null || echo "Unknown")
+[[ -z "$model" ]] && model=$(basename "$real")
+
 
     echo "DRIVE_${count}=\"${by_id} ${model} - ${size}\"" >> "$OUTPUT_FILE"
     ((count++))
