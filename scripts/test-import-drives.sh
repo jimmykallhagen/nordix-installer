@@ -5,20 +5,17 @@ OUTPUT_FILE=$SCRIPT_DIR/../config/drives.conf
 
 > "$OUTPUT_FILE"
 count=1
-declare -A seen
 
-for id_path in /dev/disk/by-id/*; do
-    [ -e "$id_path" ] || continue
-    [[ "$id_path" == *-part* ]] && continue
+for dev in $(lsblk -dpno NAME -t | grep -E '^/dev/(vd|sd|nvme)[a-z0-9]*$'); do
+    [ -b "$dev" ] || continue
 
-    real=$(readlink -f "$id_path")
-    [ -b "$real" ] || continue
-    [[ -n "${seen[$real]:-}" ]] && continue
-    seen[$real]=1
+    # Hitta by-id
+    by_id=$(find /dev/disk/by-id -maxdepth 1 -lname "$dev" -print -quit 2>/dev/null || true)
+    [[ -z "$by_id" ]] && by_id="$dev"
 
-    model=$(lsblk -dno MODEL "$real" 2>/dev/null || echo "Unknown")
-    size=$(lsblk -dno SIZE "$real" 2>/dev/null || echo "Unknown")
+    model=$(lsblk -dno MODEL "$dev" 2>/dev/null || echo "Unknown")
+    size=$(lsblk -dno SIZE "$dev" 2>/dev/null || echo "Unknown")
 
-    echo "DRIVE_${count}=\"${id_path} ${model} - ${size}\"" >> "$OUTPUT_FILE"
+    echo "DRIVE_${count}=\"${by_id} ${model} - ${size}\"" >> "$OUTPUT_FILE"
     ((count++))
 done
