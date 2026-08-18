@@ -1,23 +1,50 @@
 #!/bin/bash
+# import drives by /dev/disk/by-id and fallback if Nordix is running in VM
 set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 OUTPUT_FILE=$SCRIPT_DIR/../config/drives.conf
 
+get_disk_info() {
+    local disk_path="$1"
+    local model size
+    model=$(lsblk -dno MODEL "$disk_path" 2>/dev/null || echo "Unknown")
+    size=$(lsblk -dno SIZE "$disk_path" 2>/dev/null || echo "Unknown")
+    echo "${model} - ${size}"
+}
+
+get_by_id_path() {
+    local disk_name="$1"
+    for id_path in /dev/disk/by-id/*; do
+        if [[ "$(readlink -f "$id_path")" == "/dev/$disk_name" ]]; then
+            if [[ "$id_path" =~ /dev/disk/by-id/(ata-|nvme-[A-Z]|usb-) ]]; then
+                echo "$id_path"
+                return
+            fi
+        fi
+    done
+    echo ""
+}
+
 > "$OUTPUT_FILE"
 count=1
 
-for dev in $(lsblk -dpno NAME -t | grep -E '^/dev/(vd|sd|nvme)[a-z0-9]*$'); do
-    [ -b "$dev" ] || continue
+while IFS= read -r disk; do
+    if [[ ! "$disk" =~ ^/dev/(sd[a-z]|vd[a-z]|nvme[0-9]n[0-9])$ ]]; then
+        continue
+    fi
+    if [[ "$(lsblk -dno TYPE "$disk" 2>/dev/null)" != "disk" ]]; then
+        continue
+    fi
 
-    # Hitta by-id
-    by_id=$(find /dev/disk/by-id -maxdepth 1 -lname "$dev" -print -quit 2>/dev/null || true)
-    [[ -z "$by_id" ]] && by_id="$dev"
+    disk_name=$(basename "$disk")
+    by_id_path=$(get_by_id_path "$disk_name")
 
-model=$(lsblk -dno MODEL "$real" 2>/dev/null || echo "")
-size=$(lsblk -dno SIZE "$real" 2>/dev/null || echo "Unknown")
-[[ -z "$model" ]] && model=$(basename "$real")
+    # Fallback for VM where by-id is missing
+    if [[ -z "$by_id_path" ]]; then
+        by_id_path="$disk"
+    fi
 
-
-    echo "DRIVE_${count}=\"${by_id} ${model} - ${size}\"" >> "$OUTPUT_FILE"
+    disk_info=$(get_disk_info "$disk")
+    echo "DRIVE_${count}=\"${by_id_path} ${disk_info}\"" >> "$OUTPUT_FILE"
     ((count++))
-done
+done < <(lsblk -dpno NAME 2>/dev/null)
