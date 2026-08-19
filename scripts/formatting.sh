@@ -67,8 +67,8 @@ parse_drives_file() {
     while IFS= read -r line || [[ -n "$line" ]]; do
         # strip comments
         line="${line%%#*}"
-        # extract first /dev/disk/by-id/... occurrence
-        if [[ "$line" =~ (/dev/disk/by-id/[^[:space:\"\'=]]+) ]]; then
+        # extract first /dev/disk/by-id/... occurrence, stop at whitespace
+        if [[ "$line" =~ (/dev/disk/by-id/[^[:space:]]+) ]]; then
             out_arr+=("${BASH_REMATCH[1]}")
         fi
     done < "$file"
