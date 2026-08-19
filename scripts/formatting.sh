@@ -21,17 +21,17 @@ prepare_disk() {
     local disk_size_mb
 
     [[ -b "$disk" ]] || return 0
-    zpool labelclear -f "$disk" 2>/dev/null || true
-    wipefs -a "$disk" 2>/dev/null || true
-    dd if=/dev/zero of="$disk" bs=1M count=10 2>/dev/null || true
+    zpool labelclear -f "$disk" > /dev/null 2>&1 || true
+    wipefs -a "$disk" > /dev/null 2>&1 || true
+    dd if=/dev/zero of="$disk" bs=1M count=10 > /dev/null 2>&1 || true
 
     disk_size_mb=$(blockdev --getsz "$disk" 2>/dev/null || echo 0)
     disk_size_mb=$(( disk_size_mb / 2048 ))
-    [[ $disk_size_mb -gt 0 ]] && dd if=/dev/zero of="$disk" bs=1M seek=$((disk_size_mb - 10)) count=10 2>/dev/null || true
+    [[ $disk_size_mb -gt 0 ]] && dd if=/dev/zero of="$disk" bs=1M seek=$((disk_size_mb - 10)) count=10 > /dev/null 2>&1 || true
 
-    blockdev --rereadpt "$disk" 2>/dev/null || true
-    blockdev --flushbufs "$disk" 2>/dev/null || true
-    udevadm settle 2>/dev/null || true
+    blockdev --rereadpt "$disk" > /dev/null 2>&1 || true
+    blockdev --flushbufs "$disk" > /dev/null 2>&1 || true
+    udevadm settle > /dev/null 2>&1 || true
 }
 
 # Loop all config files and erase the disks
@@ -39,8 +39,8 @@ for conf in "${CONFIG_FILES[@]}"; do
     [[ -f "$conf" ]] || continue
     while IFS='=' read -r key value || [[ -n "$key" ]]; do
         key=$(echo "$key" | xargs)
-        value=$(echo "$value" | xargs | tr -d '"')
-        if [[ "$key" =~ ^DRIVE_ && -n "$value" && -e "$value" ]]; then
+        value=$(echo "$value" | tr -d '"\r' | xargs)
+        if [[ "$key" =~ ^DRIVE_ && -n "$value" && -b "$value" ]]; then
             prepare_disk "$value"
         fi
     done < "$conf"
