@@ -54,7 +54,14 @@ log() { echo "[formatting] $*"; }
 byid_part_dev() {
     local byid="$1"
     local part="$2"
-    echo "${byid}-part${part}"
+    if [[ "$byid" =~ ^/dev/disk/by-id/ ]]; then
+        echo "${byid}-part${part}"
+    elif [[ "$byid" =~ ^/dev/nvme ]]; then
+        echo "${byid}p${part}"
+    else
+        # /dev/sdX, /dev/vdX etc
+        echo "${byid}${part}"
+    fi
 }
 
 parse_drives_file() {
@@ -67,8 +74,8 @@ parse_drives_file() {
     while IFS= read -r line || [[ -n "$line" ]]; do
         # strip comments
         line="${line%%#*}"
-        # extract first /dev/disk/by-id/... occurrence, stop at whitespace
-        if [[ "$line" =~ (/dev/disk/by-id/[^[:space:]]+) ]]; then
+        # extract first /dev/... occurrence, stop at whitespace
+        if [[ "$line" =~ (/dev/[^[:space:]]+) ]]; then
             out_arr+=("${BASH_REMATCH[1]}")
         fi
     done < "$file"
@@ -144,8 +151,9 @@ parse_drives_file "$DRIVES_CONF" pool_drives
 if [[ -f "$BOOT_CONF" ]]; then
     log "Boot configuration detected"
     parse_drives_file "$BOOT_CONF" boot_drives
-
-    # Deduplicate
+    log "Parsed boot drives: ${boot_drives[*]:-none}"
+    parse_drives_file "$DRIVES_CONF" pool_drives
+    log "Parsed pool drives: ${pool_drives[*]:-none}"
     declare -A boot_seen
     declare -A pool_seen
     uniq_boot=()
