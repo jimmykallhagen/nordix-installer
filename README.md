@@ -87,7 +87,7 @@ choose exit if you dont want additional vdevs.
 ### ``Add SLOG, Special, L2ARC``
 
 ---
-### The Nordix masterpiece for ZFS desktops:
+# The Nordix masterpiece for ZFS desktops:
 
 ### Nordix ZPOOL setup 
 
