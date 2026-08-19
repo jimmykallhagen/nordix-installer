@@ -7,6 +7,45 @@ BOOT_CONF="${CONFIG_DIR}/selected_boot_drive.conf"
 DRIVES_CONF="${CONFIG_DIR}/selected_drives.conf"
 ZPOOL_DEVICES_CONF="${CONFIG_DIR}/zpool_devices.conf"
 
+CONFIG_FILES=(
+    "$CONFIG_DIR/selected_drives.conf"
+    "$CONFIG_DIR/selected_boot_drive.conf"
+    "$CONFIG_DIR/selected-special-drives.conf"
+    "$CONFIG_DIR/selected-l2arc-drive.conf"
+    "$CONFIG_DIR/selected-slog-drive.conf"
+)
+
+# Erase a disk by wipefs and with overwriting the start and end of the disk with zeros
+prepare_disk() {
+    local disk="$1"
+    local disk_size_mb
+
+    zpool labelclear -f "$disk" 2>/dev/null || true
+    wipefs -a "$disk" 2>/dev/null
+    dd if=/dev/zero of="$disk" bs=1M count=10 2>/dev/null
+
+    disk_size_mb=$(($(blockdev --getsz "$disk") / 2048))
+    dd if=/dev/zero of="$disk" bs=1M seek=$((disk_size_mb - 10)) count=10 2>/dev/null
+
+    blockdev --rereadpt "$disk" 2>/dev/null
+    blockdev --flushbufs "$disk" 2>/dev/null
+    udevadm settle 2>/dev/null
+}
+
+# Loop all config files and erase the disks
+for conf in "${CONFIG_FILES[@]}"; do
+    [[ -f "$conf" ]] || continue
+
+    while IFS='=' read -r key value; do
+        key=$(echo "$key" | xargs)
+        value=$(echo "$value" | xargs | tr -d '"')
+
+        if [[ "$key" =~ ^DRIVE_ && -n "$value" && -e "$value" ]]; then
+            prepare_disk "$value"
+        fi
+    done < "$conf"
+done
+
 log() { echo "[formatting] $*"; }
 
 # By-id partition path, e.g. /dev/disk/by-id/ata-XXX -> /dev/disk/by-id/ata-XXX-part1
@@ -94,45 +133,80 @@ partition_pool_drive_for_boot() {
 }
 
 # Main logic
+root_devices=()
+boot_drives=()
+pool_drives=()
+
+parse_drives_file "$DRIVES_CONF" pool_drives
+
 if [[ -f "$BOOT_CONF" ]]; then
-    log "Separate boot drive configuration detected"
-    boot_drives=()
+    log "Boot configuration detected"
     parse_drives_file "$BOOT_CONF" boot_drives
 
-    # Deduplicate boot drives by by-id
-    declare -A seen_boot
+    # Deduplicate
+    declare -A boot_seen
+    declare -A pool_seen
+    uniq_boot=()
+    uniq_pool=()
     for d in "${boot_drives[@]}"; do
-        if [[ -z "${seen_boot[$d]:-}" ]]; then
-            seen_boot[$d]=1
-            format_boot_partition "$d"
+        if [[ -z "${boot_seen[$d]:-}" ]]; then
+            boot_seen[$d]=1
+            uniq_boot+=("$d")
         fi
     done
-
-    # Pool drives
-    pool_drives=()
-    parse_drives_file "$DRIVES_CONF" pool_drives
-
-    # Build ROOT_DISK list, deduplicate by by-id
-    declare -A seen_root
-    root_devices=()
     for d in "${pool_drives[@]}"; do
-        if [[ -z "${seen_root[$d]:-}" ]]; then
-            seen_root[$d]=1
-            root_devices+=("$d")
+        if [[ -z "${pool_seen[$d]:-}" ]]; then
+            pool_seen[$d]=1
+            uniq_pool+=("$d")
         fi
     done
 
+    # Check for overlap between boot and pool drives
+    declare -A boot_map
+    for d in "${uniq_boot[@]}"; do
+        boot_map["$d"]=1
+    done
+
+    overlap_found=false
+    for d in "${uniq_pool[@]}"; do
+        if [[ -n "${boot_map[$d]:-}" ]]; then
+            overlap_found=true
+            break
+        fi
+    done
+
+    if $overlap_found; then
+        log "Boot drive overlaps with pool drives - using combined boot+ZFS partitioning"
+        declare -A processed
+        for d in "${uniq_pool[@]}"; do
+            if [[ -n "${boot_map[$d]:-}" ]]; then
+                zfs_part=$(partition_pool_drive_for_boot "$d")
+                root_devices+=("$zfs_part")
+                processed["$d"]=1
+            else
+                root_devices+=("$d")
+            fi
+        done
+        # Format separate boot drives not used in pool
+        for d in "${uniq_boot[@]}"; do
+            if [[ -z "${processed[$d]:-}" ]]; then
+                format_boot_partition "$d"
+            fi
+        done
+    else
+        log "Separate boot drive configuration detected"
+        for d in "${uniq_boot[@]}"; do
+            format_boot_partition "$d"
+        done
+        root_devices=("${uniq_pool[@]}")
+    fi
 else
     log "No separate boot drive, boot will be on first pool drive"
-    pool_drives=()
-    parse_drives_file "$DRIVES_CONF" pool_drives
-
     if [[ ${#pool_drives[@]} -eq 0 ]]; then
         log "Error: no pool drives found"
         exit 1
     fi
-
-    # Deduplicate pool drives by by-id to avoid processing same disk twice
+    # Deduplicate pool drives
     declare -A seen_pool
     unique_pool=()
     for d in "${pool_drives[@]}"; do
@@ -141,13 +215,9 @@ else
             unique_pool+=("$d")
         fi
     done
-
     first_drive="${unique_pool[0]}"
     zfs_part=$(partition_pool_drive_for_boot "$first_drive")
-
-    root_devices=()
     root_devices+=("$zfs_part")
-    # Append remaining drives as whole disks
     for d in "${unique_pool[@]:1}"; do
         root_devices+=("$d")
     done
@@ -162,4 +232,4 @@ log "ROOT_DISK set to: $ROOT_DISK"
 printf "%s\n" "${root_devices[@]}" > "$ZPOOL_DEVICES_CONF"
 log "Wrote device list to $ZPOOL_DEVICES_CONF"
 
-log "Formatting complete"
+log " complete"
