@@ -20,16 +20,18 @@ prepare_disk() {
     local disk="$1"
     local disk_size_mb
 
+    [[ -b "$disk" ]] || return 0
     zpool labelclear -f "$disk" 2>/dev/null || true
-    wipefs -a "$disk" 2>/dev/null
-    dd if=/dev/zero of="$disk" bs=1M count=10 2>/dev/null
+    wipefs -a "$disk" 2>/dev/null || true
+    dd if=/dev/zero of="$disk" bs=1M count=10 2>/dev/null || true
 
-    disk_size_mb=$(($(blockdev --getsz "$disk") / 2048))
-    dd if=/dev/zero of="$disk" bs=1M seek=$((disk_size_mb - 10)) count=10 2>/dev/null
+    disk_size_mb=$(blockdev --getsz "$disk" 2>/dev/null || echo 0)
+    disk_size_mb=$(( disk_size_mb / 2048 ))
+    [[ $disk_size_mb -gt 0 ]] && dd if=/dev/zero of="$disk" bs=1M seek=$((disk_size_mb - 10)) count=10 2>/dev/null || true
 
-    blockdev --rereadpt "$disk" 2>/dev/null
-    blockdev --flushbufs "$disk" 2>/dev/null
-    udevadm settle 2>/dev/null
+    blockdev --rereadpt "$disk" 2>/dev/null || true
+    blockdev --flushbufs "$disk" 2>/dev/null || true
+    udevadm settle 2>/dev/null || true
 }
 
 # Loop all config files and erase the disks
