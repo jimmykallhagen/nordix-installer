@@ -37,16 +37,14 @@ prepare_disk() {
 # Loop all config files and erase the disks
 for conf in "${CONFIG_FILES[@]}"; do
     [[ -f "$conf" ]] || continue
-
-    while IFS='=' read -r key value; do
+    while IFS='=' read -r key value || [[ -n "$key" ]]; do
         key=$(echo "$key" | xargs)
         value=$(echo "$value" | xargs | tr -d '"')
-
         if [[ "$key" =~ ^DRIVE_ && -n "$value" && -e "$value" ]]; then
             prepare_disk "$value"
         fi
     done < "$conf"
-done
+ done
 
 log() { :; }
 
@@ -83,17 +81,16 @@ parse_drives_file() {
 
 format_boot_partition() {
     local byid="$1"
-    log "Preparing boot device $byid"
 
     # Wipe and create GPT on by-id device
-    sgdisk -Z "$byid" || true
-    sgdisk -o "$byid" || true
+    sgdisk -Z "$byid" > /dev/null 2>&1 || true
+    sgdisk -o "$byid" > /dev/null 2>&1 || true
 
     # Create 2GiB FAT32 partition
-    sgdisk -n 1:0:+2G -t 1:EF00 "$byid"
+    sgdisk -n 1:0:+2G -t 1:EF00 "$byid" > /dev/null 2>&1
 
-    partprobe "$byid" || true
-    udevadm settle || true
+    partprobe "$byid" > /dev/null 2>&1 || true
+    udevadm settle > /dev/null 2>&1 || true
 
     local part_dev
     part_dev=$(byid_part_dev "$byid" 1)
@@ -104,28 +101,25 @@ format_boot_partition() {
     done
 
     if [[ ! -b "$part_dev" ]]; then
-        log "Error: partition $part_dev did not appear"
         exit 1
     fi
 
-    mkfs.vfat -F 32 -n BOOT "$part_dev"
-    log "Formatted $part_dev as FAT32"
+    mkfs.vfat -F 32 -n BOOT "$part_dev" > /dev/null 2>&1
 }
 
 partition_pool_drive_for_boot() {
     local byid="$1"
-    log "Partitioning pool drive for combined boot+ZFS: $byid"
 
-    sgdisk -Z "$byid" || true
-    sgdisk -o "$byid" || true
+    sgdisk -Z "$byid" > /dev/null 2>&1 || true
+    sgdisk -o "$byid" > /dev/null 2>&1 || true
 
     # 2GiB FAT32 boot partition
-    sgdisk -n 1:0:+2G -t 1:EF00 "$byid"
+    sgdisk -n 1:0:+2G -t 1:EF00 "$byid" > /dev/null 2>&1
     # Rest of disk for ZFS
-    sgdisk -n 2:0:0 -t 2:BF00 "$byid"
+    sgdisk -n 2:0:0 -t 2:BF00 "$byid" > /dev/null 2>&1
 
-    partprobe "$byid" || true
-    udevadm settle || true
+    partprobe "$byid" > /dev/null 2>&1 || true
+    udevadm settle > /dev/null 2>&1 || true
 
     local boot_part
     boot_part=$(byid_part_dev "$byid" 1)
@@ -133,8 +127,7 @@ partition_pool_drive_for_boot() {
         if [[ -b "$boot_part" ]]; then break; fi
         sleep 0.5
     done
-    mkfs.vfat -F 32 -n BOOT "$boot_part"
-    log "Formatted $boot_part as FAT32"
+    mkfs.vfat -F 32 -n BOOT "$boot_part" > /dev/null 2>&1
     # Return ZFS partition device for caller using by-id
     local zfs_part
     zfs_part=$(byid_part_dev "$byid" 2)
@@ -239,7 +232,10 @@ export ROOT_DISK
 log "ROOT_DISK set to: $ROOT_DISK"
 
 # Persist for later scripts
-printf "%s\n" "${root_devices[@]}" > "$ZPOOL_DEVICES_CONF"
+> "$ZPOOL_DEVICES_CONF"
+for dev in "${root_devices[@]}"; do
+  echo "$dev" >> "$ZPOOL_DEVICES_CONF"
+done
 log "Wrote device list to $ZPOOL_DEVICES_CONF"
 
 log " complete"
