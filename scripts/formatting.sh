@@ -48,7 +48,7 @@ for conf in "${CONFIG_FILES[@]}"; do
     done < "$conf"
 done
 
-log() { echo "[formatting] $*"; }
+log() { :; }
 
 # By-id partition path, e.g. /dev/disk/by-id/ata-XXX -> /dev/disk/by-id/ata-XXX-part1
 byid_part_dev() {
