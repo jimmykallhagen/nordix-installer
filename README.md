@@ -14,28 +14,55 @@ I have had different ideas for how this setup should look, an installer written 
 and running KMS is hardcore mode, even if it a installer, so it fits with "Nordix follow the law of performance".
 
 ---
+
+## Support all languages?
+At first i was thinking of making the istallere to just handle the most common languages (easy for me).
+
+Later i was thinking.. Many places on this earth have limited or no access to electricity and hard conditions, yet they still have language, culture, and a need for tools that work for them.
+
+A system that assumes a "standard" and obscures alternatives risks excluding people who are already facing hardship and it is not up to me to decide the language for the users. 
+
+So 327 languages it is:
+- Africa: 63
+- Asia: 104
+- Europe: 104
+- North America (incl. Central America and Caribbean): 28
+- South America: 14
+- Oceania: 11
+- Other International: 3
+
+It took some time to make the list of languages and mapp them to correct UTF-8 codes.
+
+I hope it is correct!! 
+
+But everything here takes alot of time to write, so not something new..
+
+---
+
 ## Nordix installer
-The philosophy behind the Nordix installer is that it should be modular and easy to understand and so it will be easier to contribute to the Nordix installer if you would like to do so.
-> You could think of the Nordix installer as a universal Arch ZFS installer.
+The philosophy behind the Nordix installer is that it should be modular and easy to understand so it will be easier to contribute to the Nordix installer if you would like to do so.
+
 ---
 
 # Contribute
 
 Things I write tend to be a bit enthusiastic, but I have to let it be, nothing is written in stone and if you are someone who wants to contribute to this project and maybe make it have a less enthusiastic, are welcome to help me with this, you are welcome to help and contribute even if you don't want to change the impression of course
 
-
 ---
-
-# Update 
-
+# Updates 
 
 * Detekt devices /dev/disk/by-id and convert it to human readable format
 * Choose seperate boot device y/n
 * Choose zpool layout
 * Choose devices
-* choose special vdev, SLOG, l2arc
-* erase and formatting disk
-
+* Choose special vdev, SLOG, l2arc
+* Choose gpu
+* Choose RAM size in GB (Gonna add some more sizes later, to cover more RAM configurations)
+* Erase and formatting disk
+* Added support to dedect devices in VM
+* Zpool creation
+* Creation of special vdevs, l2arc and slog
+* Selection of language
 seems to working now!!
 
 ---
