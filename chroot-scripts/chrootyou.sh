@@ -8,14 +8,8 @@ MOUNT_POINT="/mnt"
 PREEMADE_DIR="${SCRIPT_DIR}/../preemade-configs"
 MKINITCPIO_CONF="/etc/mkinitcpio.conf"
 source "${CONFIG_DIR}/gpu.conf"
+source "${CONFIG_DIR}/timezone.conf"
 
-# Auto find timezone
-TIMEZONE=$(curl http://ip-api.com/line | grep /)
-# Wait for a valid timezone
-while true; do
-    [[ -n "$TIMEZONE" ]] && break
-    sleep 1
-done
 # Set the correct timezone
 arch-chroot "$MOUNT_POINT" ln -sf /usr/share/zoneinfo/"$TIMEZONE" /etc/localtime
 
