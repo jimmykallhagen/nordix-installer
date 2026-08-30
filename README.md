@@ -63,6 +63,8 @@ Things I write tend to be a bit enthusiastic, but I have to let it be, nothing i
 * Zpool creation
 * Creation of special vdevs, l2arc and slog
 * Selection of language
+* Select timezone
+* Create user with password
 seems to working now!!
 
 ---
