@@ -1,6 +1,5 @@
 #!/bin/bash
 # Nordix Installer
-set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 CONFIG_DIR="${SCRIPT_DIR}/../config"
 
@@ -16,11 +15,11 @@ echo -ne "\e]10;${G_BASE_COLOR}\a"
 clear
 gum_spin_timer "Set hostname"
 
-while true; do
 OPTIONS_HOSTNAME=(
     'Default - nordix'
     'Custom'
 )
+while true; do
     clear
     gum_box "Choose hostname with Enter"
     # show hostname options
@@ -29,7 +28,7 @@ OPTIONS_HOSTNAME=(
     # handling ESC/no choise
     if [[ -z "$CHOICE_HOST" ]]; then
         clear
-        gum_spin_timer "Please select a hostname!" && true
+        gum_spin_box_sleep "Please select a hostname!" && true
         continue
     fi
 

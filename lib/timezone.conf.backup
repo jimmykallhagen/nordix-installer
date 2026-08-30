@@ -1,0 +1,103 @@
+REGION=(
+    "Africa"
+    "America"
+    "Antarctica"
+    "Arctic"
+    "Asia"
+    "Atlantic"
+    "Australia"
+    "Brazil"
+    "Canada"
+    "Chile"
+    "Europe"
+    "Indian"
+    "Mexico"
+    "Pacific"
+)
+Africa=(
+Abidjan      Asmera  Blantyre     Ceuta          Douala    Johannesburg  Kinshasa    Lubumbashi  Mbabane    Niamey       Timbuktu
+Accra        Bamako  Brazzaville  Conakry        El_Aaiun  Juba          Lagos       Lusaka      Mogadishu  Nouakchott   Tripoli
+Addis_Ababa  Bangui  Bujumbura    Dakar          Freetown  Kampala       Libreville  Malabo      Monrovia   Ouagadougou  Tunis
+Algiers      Banjul  Cairo        Dar_es_Salaam  Gaborone  Khartoum      Lome        Maputo      Nairobi    Porto-Novo   Windhoek
+Asmara       Bissau  Casablanca   Djibouti       Harare    Kigali        Luanda      Maseru      Ndjamena   Sao_Tome
+)
+
+America=(
+Adak            Bogota         Creston       Godthab       Juneau         Menominee      Ojinaga         Rosario        Thule
+Anchorage       Boise          Cuiaba        Goose_Bay     Kentucky/      Merida         Panama          Santa_Isabel   Thunder_Bay
+Anguilla        Buenos_Aires   Curacao       Grand_Turk    Knox_IN        Metlakatla     Pangnirtung     Santarem       Tijuana
+Antigua         Cambridge_Bay  Danmarkshavn  Grenada       Kralendijk     Mexico_City    Paramaribo      Santiago       Toronto
+Araguaina       Campo_Grande   Dawson        Guadeloupe    La_Paz         Miquelon       Phoenix         Santo_Domingo  Tortola
+Argentina/      Cancun         Dawson_Creek  Guatemala     Lima           Moncton        Port-au-Prince  Sao_Paulo      Vancouver
+Aruba           Caracas        Denver        Guayaquil     Los_Angeles    Monterrey      Porto_Acre      Scoresbysund   Virgin
+Asuncion        Catamarca      Detroit       Guyana        Louisville     Montevideo     Port_of_Spain   Shiprock       Whitehorse
+Atikokan        Cayenne        Dominica      Halifax       Lower_Princes  Montreal       Porto_Velho     Sitka          Winnipeg
+Atka            Cayman         Edmonton      Havana        Maceio         Montserrat     Puerto_Rico     St_Barthelemy  Yakutat
+Bahia           Chicago        Eirunepe      Hermosillo    Managua        Nassau         Punta_Arenas    St_Johns       Yellowknife
+Bahia_Banderas  Chihuahua      El_Salvador   Indiana/      Manaus         New_York       Rainy_River     St_Kitts
+Barbados        Ciudad_Juarez  Ensenada      Indianapolis  Marigot        Nipigon        Rankin_Inlet    St_Lucia
+Belem           Coral_Harbour  Fortaleza     Inuvik        Martinique     Nome           Recife          St_Thomas
+Belize          Cordoba        Fort_Nelson   Iqaluit       Matamoros      Noronha        Regina          St_Vincent
+Blanc-Sablon    Costa_Rica     Fort_Wayne    Jamaica       Mazatlan       North_Dakota/  Resolute        Swift_Current
+Boa_Vista       Coyhaique      Glace_Bay     Jujuy         Mendoza        Nuuk           Rio_Branco      Tegucigalpa
+)
+
+Antarctica=(
+Casey  Davis  DumontDUrville  Macquarie  Mawson  McMurdo  Palmer  Rothera  South_Pole  Syowa  Troll  Vostok
+)
+
+Asia=(
+Aden       Bahrain     Chongqing  Gaza         Jerusalem    Kuala_Lumpur  Novokuznetsk  Rangoon        Tashkent       Ulan_Bator
+Almaty     Baku        Chungking  Harbin       Kabul        Kuching       Novosibirsk   Riyadh         Tbilisi        Urumqi
+Amman      Bangkok     Colombo    Hebron       Kamchatka    Kuwait        Omsk          Saigon         Tehran         Ust-Nera
+Anadyr     Barnaul     Dacca      Ho_Chi_Minh  Karachi      Macao         Oral          Sakhalin       Tel_Aviv       Vientiane
+Aqtau      Beirut      Damascus   Hong_Kong    Kashgar      Macau         Phnom_Penh    Samarkand      Thimbu         Vladivostok
+Aqtobe     Bishkek     Dhaka      Hovd         Kathmandu    Magadan       Pontianak     Seoul          Thimphu        Yakutsk
+Ashgabat   Brunei      Dili       Irkutsk      Katmandu     Makassar      Pyongyang     Shanghai       Tokyo          Yangon
+Ashkhabad  Calcutta    Dubai      Istanbul     Khandyga     Manila        Qatar         Singapore      Tomsk          Yekaterinburg
+Atyrau     Chita       Dushanbe   Jakarta      Kolkata      Muscat        Qostanay      Srednekolymsk  Ujung_Pandang  Yerevan
+Baghdad    Choibalsan  Famagusta  Jayapura     Krasnoyarsk  Nicosia       Qyzylorda     Taipei         Ulaanbaatar
+)
+Atlantic=(
+Azores  Bermuda  Canary  Cape_Verde  Faeroe  Faroe  Jan_Mayen  Madeira  Reykjavik  South_Georgia  Stanley  St_Helena
+)
+
+Australia=(
+ACT       Brisbane     Canberra  Darwin  Hobart  Lindeman   Melbourne  NSW    Queensland  Sydney    Victoria  Yancowinna
+Adelaide  Broken_Hill  Currie    Eucla   LHI     Lord_Howe  North      Perth  South       Tasmania  West
+)
+
+Brazil=(
+Acre  DeNoronha  East  West
+)
+Canada=(
+Atlantic  Central  Eastern  Mountain  Newfoundland  Pacific  Saskatchewan  Yukon
+)
+
+Chile=(
+Continental  EasterIsland
+)
+
+Europe=(
+Amsterdam  Berlin      Chisinau    Isle_of_Man  Kyiv        Malta      Oslo       Samara      Sofia      Uzhgorod   Warsaw
+Andorra    Bratislava  Copenhagen  Istanbul     Lisbon      Mariehamn  Paris      San_Marino  Stockholm  Vaduz      Zagreb
+Astrakhan  Brussels    Dublin      Jersey       Ljubljana   Minsk      Podgorica  Sarajevo    Tallinn    Vatican    Zaporozhye
+Athens     Bucharest   Gibraltar   Kaliningrad  London      Monaco     Prague     Saratov     Tirane     Vienna     Zurich
+Belfast    Budapest    Guernsey    Kiev         Luxembourg  Moscow     Riga       Simferopol  Tiraspol   Vilnius
+Belgrade   Busingen    Helsinki    Kirov        Madrid      Nicosia    Rome       Skopje      Ulyanovsk  Volgograd
+)
+
+Indian=(
+Antananarivo  Chagos  Christmas  Cocos  Comoro  Kerguelen  Mahe  Maldives  Mauritius  Mayotte  Reunion
+)
+
+Mexico=(
+BajaNorte  BajaSur  General
+)
+
+Pacific=(
+Apia          Chuuk      Fakaofo    Gambier      Johnston    Kwajalein  Nauru    Pago_Pago  Ponape        Samoa      Truk
+Auckland      Easter     Fiji       Guadalcanal  Kanton      Majuro     Niue     Palau      Port_Moresby  Tahiti     Wake
+Bougainville  Efate      Funafuti   Guam         Kiritimati  Marquesas  Norfolk  Pitcairn   Rarotonga     Tarawa     Wallis
+Chatham       Enderbury  Galapagos  Honolulu     Kosrae      Midway     Noumea   Pohnpei    Saipan        Tongatapu  Yap
+)
