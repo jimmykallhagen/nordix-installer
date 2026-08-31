@@ -1,26 +1,27 @@
 #!/bin/bash
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source $SCRIPT_DIR/../gum-lib/gum.conf
-OUTPUT_FILE="$SCRIPT_DIR/../config/extra-package.conf"
+OUTPUT_FILE="$SCRIPT_DIR/../config/extra-pkg-homelab.conf"
 unset CHOICE
 
 # Set base color for the installer
 echo -ne "\e]10;${G_BASE_COLOR}\a"
-
-clear
-# gum_spin_timer "Looking after some package.."
 
 # Choose package
 OPTIONS=(
     'Docker - ZFS drivers'
     'SSH'
     'VM - qemu-desktop,libvirt,virt-manager,libnbd,libguestfs'
+    'Ollama - Host local ai, simpel terminal ui, good support to supply local ai models to other ai tools'
+    'LmStudio - Host local ai, full GUI from start, can be used to supply local ai models to other ai tools'
+    'Cockpit - Web-based server management'
+    ""
     'Exit'
 )
 
 while true; do
     clear
-    gum_box "Select extra package"
+    gum_box "Extra package selection: Homelab"
     # show the list of packages with gum_choose
     CHOICE=$(printf "%s\n" "${OPTIONS[@]}" | gum_choose_no_limit "Press Space to choose - Enter to confirm")
 
@@ -46,9 +47,12 @@ while true; do
         # Process each selected choice line by line
         while IFS= read -r line; do
             case "$line" in
-                "Docker - ZFS drivers")   echo "PKG1=docker" >> "${OUTPUT_FILE}"  ;;
-                "SSH")   echo "PKG2=ssh" >> "${OUTPUT_FILE}" ;;
-                "VM - qemu-desktop,libvirt,virt-manager,libnbd,libguestfs") echo "PKG3=VM" >> "${OUTPUT_FILE}" ;;
+                "Docker - ZFS drivers")   echo "PKG-H1=docker" >> "${OUTPUT_FILE}"  ;;
+                "SSH")   echo "PKG-H2=ssh" >> "${OUTPUT_FILE}" ;;
+                "VM - qemu-desktop,libvirt,virt-manager,libnbd,libguestfs") echo "PKG-H3=VM" >> "${OUTPUT_FILE}" ;;
+                "Ollama") echo "PKG-H4=ollama" >> "${OUTPUT_FILE}" ;;
+                "LmStudio") echo "PKG-H5=lmstudio" >> "${OUTPUT_FILE}" ;;
+                "Cockpit - Web-based server management") echo "PKG-H6=cockpit" >> "${OUTPUT_FILE}" ;;
             esac
         done <<< "$CHOICE_FILTERED"
         break

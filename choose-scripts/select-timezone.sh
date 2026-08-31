@@ -8,7 +8,7 @@ source ${SCRIPT_DIR}/../lib/timezone.conf
 echo -ne "\e]10;${G_BASE_COLOR}\a"
 
 clear
-# gum_spin_timer "Searching for the continents of the world..."
+ gum_spin_timer "Searching for the continents of the world..."
 
 OPTIONS=(
     "Africa"
@@ -46,7 +46,7 @@ while true; do
 
         # Choose the timezone
         clear
-        # gum_spin_timer "Gathering ${SELECTED_CONTINENT}'s regions..."
+         gum_spin_timer "Gathering ${SELECTED_CONTINENT}'s regions..."
 
         while true; do
             clear
