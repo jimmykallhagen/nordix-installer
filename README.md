@@ -88,32 +88,32 @@ seems to working now!!
 
 ---
 # 1.
-### ´´It starts with select-boot-drive.sh´´.
+### ``It starts with select-boot-drive.sh``.
 Gum shell scripts will give the options to the user to choose a seperate device for boot to be able to give whole disk to zfs for best performance
  1. choose if you want to have boot (zfsbootmenu) on a seperate device.
  2. if yes - choose boot drive.
 
 # 2.
-### ´´select zpool layout and devices for the zpool - help is written so you can get a guidence direktly here´´
+### ``select zpool layout and devices for the zpool - help is written so you can get a guidence direktly here``
  1. select zpool layout
  2. select devices for the zpool.
 
 # 3.
-### ´´This part is 3 but they is the same for every extra vdev: One for Special vdev, one for SLOG, one for l2arc´´
+### ``This part is 3 but they is the same for every extra vdev: One for Special vdev, one for SLOG, one for l2arc``
  1. select singl, stripe or mirror
  2. select devices
 
 choose exit if you dont want additional vdevs.
 
 # 4 
-### ´´Formatting´´
+### ``Formatting``
  1.erase the devices
  2. look if seperate boot is selected, if yes - no partition of zpool devices, if no partition will be created on zpool devices
  3. format fat32
  3. create the zpool 
 
 # 5.
-### ´´´Add SLOG, Special, L2ARC
+### ``Add SLOG, Special, L2ARC``
 
 ---
 ## Nordix ZPOOL setup:
