@@ -8,20 +8,17 @@ ZFS_INFO_VDEV="${SCRIPT_DIR}/../info/zfs-info-vdev"
 MASTER_LIST="${CONFIG_DIR}/device-list-vdev.conf"
 source "${MASTER_LIST}"
 
-
-
-
 unset ZPOOL CHOICE
 
 # Set base color for the installer
 echo -ne "\e]10;${G_BASE_COLOR}\a"
-# Help section
 
 # Nordix intro
 
 # Choose options for Zpool layouts
 OPTIONS=(
 "Nordix ZFS Help"
+""
 "ZFS Single : 1 drive, no redundancy"
 "ZFS Stripe : 2+ drives, maximum speed, no redundancy (Similar to RAID0)"
 "ZFS Mirror : 2 drives, fault tolerant (Similar to RAID 1)"

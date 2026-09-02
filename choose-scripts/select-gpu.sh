@@ -45,7 +45,7 @@ while true; do
     # Confirm the selected gpu
     if gum_confirm "Confirm GPU: ${CHOICE}?"; then
         # write GPU to file
-        echo "_GPU=\"$GPU\"" > "${OUTPUT_FILE}"
+        echo "GPU=\"$GPU\"" > "${OUTPUT_FILE}"
         break
     fi
 done

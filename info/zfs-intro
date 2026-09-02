@@ -1,0 +1,23 @@
+zfs_intro() {
+gum_box "
+#==================================================================================================#
+#                    Nordix: Making Enterprise ZFS Accessible to Everyone                          #
+#==================================================================================================#
+
+- Simple installer with guided setup
+- Carefully configured ZFS setup, tuned for optimal desktop performance
+ with selectable profiles for 8GB, 16GB, 32GB, 64GB, and 128GB of RAM.
+- Automatic snapshot service from start
+- ZFSBootMenu for boot environments and rollbacks
+- Advanced vdev options for performance tuning
+
+25 datasets:
+- optimized for the specific workload of catalogs,
+- optimized ARC caching and snapshot properties
+
+
+You don't need to be a ZFS expert to benefit. Nordix does the hard work for you."
+
+    echo ""
+    read -r -p "Press Enter to Continue"
+}
