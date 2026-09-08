@@ -10,7 +10,6 @@ SLOG_LAYOUT="$(cat "${CONFIG_DIR}/slog-layout.conf")"
 SLOG_DEVICES=${CONFIG_DIR}/selected-slog-devices.conf
 
 # if special layout is single or stripe
-
 if [[ "${SPECIAL_LAYOUT}" == special-single || "${SPECIAL_LAYOUT}" == special-stripe || "${SPECIAL_LAYOUT}" == special-mirror ]]; then
   dev_args=()
   while IFS='=' read -r key val; do

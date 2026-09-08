@@ -8,9 +8,15 @@ MEM_GB=$(( (MEM_KB + 1024 * 1024 / 2) / (1024 * 1024) ))
 
 # Set base color for the installer
 echo -ne '\e]10;${G_BASE_COLOR}\a'
-
-
 clear
+
+OPTIONS=(
+"RAM Size - 8GB"
+"RAM Size - 16GB"
+"RAM Size - 32GB"
+"RAM Size - 64GB"
+"RAM Size - 128GB"
+)
 
 while true; do
     CHOICE=$(printf "%s\n" "${OPTIONS[@]}" | gum_choose \

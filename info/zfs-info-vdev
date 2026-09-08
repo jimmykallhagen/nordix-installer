@@ -1,3 +1,7 @@
+
+vdev_info() {
+clear
+gum_pager "
 #==================================================================================================#
 #                                     VDEVs - What is a VDEV?                                      #
 #==================================================================================================#
@@ -8,13 +12,20 @@ It represents a logical grouping of physical storage devices, such as hard drive
 OpenZFS supports several types of vdevs. Top-level vdevs carry data and provide redundancy:
 
 - ZFS single device: one drive.
+  Standard performance
+  No redundancy.
 
 - ZFS Stripe: One or more devices striped together (like RAID 0).
-Provides maximum performance but no redundancy. Data will be lost if any device fails.
+  Provides maximum performance but no redundancy. Data will be lost if any device fails.
 
-- ZFS Mirror: Stores identical data on two drives for redundancy. Read performance is roughly doubled, write performance equals a single drive.>
 
-- ZFS Stripe + Mirror: Two mirror vdevs striped together. Requires minimum 4 drives. Offers roughly 4x read performance with write performance >
+- ZFS Mirror: Stores identical data on two drives for redundancy.
+  Read performance is roughly doubled, write performance equals a single drive.
+  Half the storage capacity is usable.
+
+- ZFS Stripe + Mirror: Two mirror vdevs striped together. Requires minimum 4 drives.
+  Offers roughly 4x read performance with write performance equivalent to two drives.
+  Half the storage capacity.
 
 ----------------------------------------------------------------------------------------------------
 RAIDZ: A vdev that uses parity to provide fault tolerance, similar to traditional RAID 5/6.
@@ -54,13 +65,27 @@ Redundancy = can lose 1 drive per mirror pair.
 * ZFS RAIDZ offers good redundancy and storage efficiency but reduced write performance.
 Read performance is decent.
 Storage usage:
-RAIDZ: ~67% usable (3 drives)
-Redundancy = can lose 1 drive.
-RAIDZ2: ~60% usable (5 drives)
-Redundancy = can lose 2 drives.
-RAIDZ3: ~57% usable (7 drives)
-Redundancy = can lose 3 drives.
 
+- RAIDZ: ~67% usable (3 drives)
+  * Redundancy = can lose 1 drive.
+
+- RAIDZ2: ~60% usable (5 drives)
+  * Redundancy = can lose 2 drives.
+
+- RAIDZ3: ~57% usable (7 drives)
+  * Redundancy = can lose 3 drives.
+
+** Tips 1 **
+Take in consideration that mix NVME slots that are directly connected to the CPU and NVME slots
+that are connected to the motherboards chiplets can have negative impact on performance.
+
+My own testing showed that the chiplet connected NVME slots with CPU connected NVME slots
+will throttle the performance above 10-15 GB/s
+
+** Tips 2 **
+Nordix is a performance oriented distribution and it is designed to use NVME, SSD, and HDD
+as storage space, RAM is workspace, take that in consideration, the zpool setup should be
+optimized to feed ARC as fast as possible. Read matters most.
 
 #==================================================================================================#
 #               Recommendations: Stripe/mirror for Home PC, RAIDZ for Servers                      #
@@ -98,7 +123,7 @@ Recommendation:
 - Dont mix HDDs, SSDs and NVMe in the same vdev!
 
 #==================================================================================================#
-#                    PCIe Topology and NVMe Performance                                            #
+#                              PCIe Topology and NVMe Performance                                  #
 #==================================================================================================#
 Note: PCIe lanes can be routed differently depending on your motherboard design:
 - CPU-direct lanes: Direct connection to CPU, lowest latency
@@ -114,6 +139,19 @@ For redundancy-focused systems (RAIDZ, mirror):
 
 Check your motherboard manual to identify which NVMe slots are CPU-connected for optimal setups.
 
+
+#==================================================================================================#
+#                                          Advanced                                                #
+#==================================================================================================#
+For best performance, consider to format your devices in real 4k sectors.
+this will give you the best performance and avoid any potential issues with sector size mismatches.
+
+- This is not covered in the nordix installer for now
+
+
+
 ##=======================##
  # Press ESC to continue #
 ##=======================##
+"
+}

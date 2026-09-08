@@ -1,3 +1,15 @@
+
+advance_zfs_info() {
+gum_pager "
+#________________________________________________________________________#
+YOU PROBABLY GONNA NEED TO MAKE PARTITIONS OF A DEDICATETED EXTRA VDEV
+
+I HAVENT BUILT SUPPORT FOR THAT YET
+YOU CAN ADD EXTRA VDEVS
+AFTER THE INSTALLATION IS COMPLETE
+#________________________________________________________________________#
+
+
 #==================================================================================================#
 #                                  ZFS Advanced Setup                                              #
 #==================================================================================================#
@@ -50,7 +62,7 @@ Special vdev options (for metadata and small files 128K-1MB):
 - 2 fast NVMe in mirror (best practice)
 
 This setup provides low latency and good performance regardless of HDD usage.
-                       
+
                               ---------
 
 Add this step for systems running on NVMe/SSD but storing data on HDD.
@@ -66,7 +78,7 @@ as you can see you probably want more sata and nvme ports on your motherboard.
 PRO System: HDD Zpool with Dedicated NVMe Pool
 
 HDD pool (for data):
-- 4x 8TB high-speed HDDs in stripe or stripe+mirror
+- 4x 8TB high-speed HDDs in stripe, stripe+mirror, Raidz
 
 NVMe pool (for system/VMs):
 - 2 fast NVMe in mirror (separate zpool)
@@ -81,4 +93,8 @@ Guide for ZVOL setup can be found at:
 https://github.com/jimmykallhagen/nordix-ZGuide_guide-to-zfs
 
 ------------------------------------------------------------------------------
-
+##===================##
+ # Press ESC to exit #
+##===================##
+"
+}
