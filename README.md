@@ -148,12 +148,12 @@ seems to working now!!
 ---
 # 1.
 ### ``It starts with select-boot-drive.sh``.
-Gum shell scripts will give the options to the user to choose a seperate device for boot to be able to give whole disk to zfs for best performance
- 1. choose if you want to have boot (zfsbootmenu) on a seperate device.
+Gum shell scripts will give the options to the user to choose a separate device for boot to be able to give whole disk to zfs for best performance
+ 1. choose if you want to have boot (zfsbootmenu) on a separate device.
  2. if yes - choose boot drive.
 
 # 2.
-### ``select zpool layout and devices for the zpool - help is written so you can get a guidence direktly here``
+### ``select zpool layout and devices for the zpool - help is written so you can get a guidance directly here``
  1. select zpool layout
  2. select devices for the zpool.
 
