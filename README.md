@@ -42,6 +42,7 @@ But everything here takes alot of time to write, so not something new..
 ## Nordix installer
 The philosophy behind the Nordix installer is that it should be modular and easy to understand so it will be easier to contribute to the Nordix installer if you would like to do so.
 
+
 ---
 
 # Contribute
@@ -85,7 +86,63 @@ seems to working now!!
  - Special
  - Slog
 ---
+## The structure for now (I will update it with order and functionality soon)
+**(The list isn't complete yet)**
+./
+├── choose-scripts
+│   ├── select-boot-drive.sh
+│   ├── select-desktop-env.sh
+│   ├── select-gpu.sh
+│   ├── select-hostname.sh
+│   ├── select-l2arc.sh
+│   ├── select-locale.sh
+│   ├── select-ram-size.sh
+│   ├── select-slog.sh
+│   ├── select-special.sh
+│   ├── select-timezone.sh
+│   ├── select-user.sh
+│   └── select-zpool-type.sh
+├── config
+│   ├── desktop.env.conf
+│   └── extra-pkg-homelab.conf
+├── extra-pkg
+│   ├── select-extra-pkg-creative.sh
+│   ├── select-extra-pkg-dev.sh
+│   ├── select-extra-pkg-gaming.sh
+│   ├── select-extra-pkg-homelab.sh
+│   ├── select-extra-pkg-mail-calendar.sh
+│   └── select-extra-pkg-office-utils.sh
+├── gum-lib
+│   └── gum.conf
+├── info
+│   ├── zfs
+│   ├── zfs-device-1.conf
+│   ├── zfs-info-advanced
+│   ├── zfs-info-vdev
+│   └── zfs-intro
+├── install
+│   ├── install.conf
+│   ├── install.sh
+│   └── zfs-module
+├── ~install-output
+├── install-scripts
+│   └── chrootyou.sh
+├── lib
+│   ├── locale.conf
+│   └── timezone.conf
+├── LICENSE
+├── nordix.sh
+├── preemade-configs
+│   └── nvidia.conf
+├── README.md
+└── scripts
+    ├── erase-drive.sh
+    ├── formatting.sh
+    ├── import-devices.sh
+    ├── special-vdev.sh
+    └── zpool.sh
 
+11 directories, 42 files
 ---
 # 1.
 ### ``It starts with select-boot-drive.sh``.
