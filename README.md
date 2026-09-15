@@ -88,6 +88,7 @@ seems to working now!!
 ---
 ## The structure for now (I will update it with order and functionality soon)
 **(The list isn't complete yet)**
+```bash
 ./
 ├── choose-scripts
 │   ├── select-boot-drive.sh
@@ -143,6 +144,7 @@ seems to working now!!
     └── zpool.sh
 
 11 directories, 42 files
+```
 ---
 # 1.
 ### ``It starts with select-boot-drive.sh``.
