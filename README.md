@@ -89,10 +89,14 @@ seems to working now!!
 ## The structure for now (I will update it with order and functionality soon)
 **(The list isn't complete yet)**
 ```bash
-./
+./tree
+.
+├── LICENSE
+├── README.md
 ├── choose-scripts
 │   ├── select-boot-drive.sh
 │   ├── select-desktop-env.sh
+│   ├── select-extra-vdev.sh
 │   ├── select-gpu.sh
 │   ├── select-hostname.sh
 │   ├── select-l2arc.sh
@@ -105,7 +109,9 @@ seems to working now!!
 │   └── select-zpool-type.sh
 ├── config
 │   ├── desktop.env.conf
-│   └── extra-pkg-homelab.conf
+│   ├── device-list-vdev.conf
+│   ├── extra-pkg-homelab.conf
+│   └── selected_boot_drive.conf
 ├── extra-pkg
 │   ├── select-extra-pkg-creative.sh
 │   ├── select-extra-pkg-dev.sh
@@ -116,34 +122,33 @@ seems to working now!!
 ├── gum-lib
 │   └── gum.conf
 ├── info
+│   ├── nordix-welcome
 │   ├── zfs
-│   ├── zfs-device-1.conf
+│   ├── zfs-info
 │   ├── zfs-info-advanced
-│   ├── zfs-info-vdev
-│   └── zfs-intro
+│   └── zfs-info-vdev
 ├── install
 │   ├── install.conf
 │   ├── install.sh
+│   ├── nordix-intro
 │   └── zfs-module
-├── ~install-output
 ├── install-scripts
 │   └── chrootyou.sh
 ├── lib
 │   ├── locale.conf
 │   └── timezone.conf
-├── LICENSE
 ├── nordix.sh
 ├── preemade-configs
 │   └── nvidia.conf
-├── README.md
-└── scripts
-    ├── erase-drive.sh
-    ├── formatting.sh
-    ├── import-devices.sh
-    ├── special-vdev.sh
-    └── zpool.sh
+├── scripts
+│   ├── erase-drive.sh
+│   ├── formatting.sh
+│   ├── import-devices.sh
+│   ├── special-vdev.sh
+│   └── zpool.sh
+└── ~install-output
 
-11 directories, 42 files
+11 directories, 46 files
 ```
 ---
 # 1.
