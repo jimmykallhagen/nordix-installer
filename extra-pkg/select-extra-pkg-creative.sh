@@ -24,7 +24,8 @@ OPTIONS=(
     "Kdenlive - Video editing software"
     "OBS Studio - Open Broadcaster Software"
     "GPU Screen Recorder - The fastest screen recorder for Linux"
-    'Exit'
+    ""
+    "Exit"
 )
 
     # show the list of packages with gum_choose
