@@ -2,14 +2,14 @@
 
 
 ## First impressions
-An installer is the first impression you get of a system, but its appearance has nothing to do with whether a system is modern or not, whether a system is technically good or bad, but it is a first impression and using ready-made installers like Calamares gives a professional impression.
+An installer is the first impression you get of a system, but its appearance has nothing to do with whether a system is modern or not, whether a system is technically good or bad, but it is a first impression and using ready made installers like Calamares gives a professional impression.
 
 ---
 
 ## Why not Calamarer?
 
 Calamares is great for handling standard installations, perfect for giving the user smooth system setup with location, language, keyboard, partitioning, formatting your drive and configure a bootloader.
-But when a system like Nordix deviates from this standard with zfs and its various vdev layouts it becomes problematic, not using a traditional bootloader but instead using Zfsbootmenu means that you have to put more work into "hacking" Calameres than it takes to write your own installer.
+But when a system like Nordix deviates from this standard with zfs and its various vdev layouts it becomes problematic, not using a traditional bootloader but instead using Zfsbootmenu with EFI stub means that you have to put more work into "hacking" Calameres than it takes to write your own installer.
 I have had different ideas for how this setup should look, an installer written with python GUI or similar has been one of my thoughts at first, but then I think that for a first release I should not bother too much with it. A graphical installer can also introduce compatibility issues with diverse hardware, using Bash and Gum ensures it runs on any console without extra drivers.
 and running KMS is hardcore mode, even if it a installer, so it fits with "Nordix follow the law of performance".
 
