@@ -49,7 +49,7 @@ done
 
         while true; do
             clear
-            gum_box_sleep "Create user password (user amd root password is the same)"
+            gum_box_sleep "Create user password (user and root password is the same)"
             gum_box "Minimum 4 characters, no spaces"
             USER_PASSWD=$(gum_input_hidden "Enter password:****")
 

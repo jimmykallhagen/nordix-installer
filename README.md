@@ -18,7 +18,7 @@ and running KMS is hardcore mode, even if it a installer, so it fits with "Nordi
 ## Support all languages?
 At first i was thinking of making the istallere to just handle the most common languages (easy for me).
 
-Later i was thinking.. Many places on this earth have limited or no access to electricity and hard conditions, yet they still have language, culture, and a need for tools that work for them.
+Later i was thinking...
 
 A system that assumes a "standard" and obscures alternatives risks excluding people who are already facing hardship and it is not up to me to decide the language for the users. 
 
@@ -35,38 +35,16 @@ It took some time to make the list of languages and mapp them to correct UTF-8 c
 
 I hope it is correct!! 
 
-But everything here takes alot of time to write, so not something new..
-
 ---
 
 ## Nordix installer
 The philosophy behind the Nordix installer is that it should be modular and easy to understand so it will be easier to contribute to the Nordix installer if you would like to do so.
-
 
 ---
 
 # Contribute
 
 Things I write tend to be a bit enthusiastic, but I have to let it be, nothing is written in stone and if you are someone who wants to contribute to this project and maybe make it have a less enthusiastic, are welcome to help me with this, you are welcome to help and contribute even if you don't want to change the impression of course
-
----
-# Updates 
-
-* Detekt devices /dev/disk/by-id and convert it to human readable format
-* Choose seperate boot device y/n
-* Choose zpool layout
-* Choose devices
-* Choose special vdev, SLOG, l2arc
-* Choose gpu
-* Choose RAM size in GB (Gonna add some more sizes later, to cover more RAM configurations)
-* Erase and formatting disk
-* Added support to dedect devices in VM
-* Zpool creation
-* Creation of special vdevs, l2arc and slog
-* Selection of language
-* Select timezone
-* Create user with password
-seems to working now!!
 
 ---
 ## Some info
@@ -85,11 +63,13 @@ seems to working now!!
  - L2ARC
  - Special
  - Slog
+
 ---
 ## The structure for now (I will update it with order and functionality soon)
 **(The list isn't complete yet)**
 ```bash
-./tree
+
+tree
 .
 ├── LICENSE
 ├── README.md
@@ -111,7 +91,8 @@ seems to working now!!
 │   ├── desktop.env.conf
 │   ├── device-list-vdev.conf
 │   ├── extra-pkg-homelab.conf
-│   └── selected_boot_drive.conf
+│   ├── selected_boot_drive.conf
+│   └── user.conf
 ├── extra-pkg
 │   ├── select-extra-pkg-creative.sh
 │   ├── select-extra-pkg-dev.sh
@@ -127,11 +108,6 @@ seems to working now!!
 │   ├── zfs-info
 │   ├── zfs-info-advanced
 │   └── zfs-info-vdev
-├── install
-│   ├── install.conf
-│   ├── install.sh
-│   ├── nordix-intro
-│   └── zfs-module
 ├── install-scripts
 │   └── chrootyou.sh
 ├── lib
@@ -139,16 +115,26 @@ seems to working now!!
 │   └── timezone.conf
 ├── nordix.sh
 ├── preemade-configs
-│   └── nvidia.conf
-├── scripts
-│   ├── erase-drive.sh
-│   ├── formatting.sh
-│   ├── import-devices.sh
-│   ├── special-vdev.sh
-│   └── zpool.sh
-└── ~install-output
+│   ├── amd
+│   │   └── modprobe.d
+│   │       ├── amdgpu.conf
+│   │       └── zfs.conf
+│   ├── intel
+│   │   └── modproble.d
+│   │       └── zfs.conf
+│   └── nvidia
+│       └── modproble.d
+│           ├── nvidia.conf
+│           └── zfs.conf
+└── scripts
+    ├── create-dataset.sh
+    ├── erase-drive.sh
+    ├── formatting.sh
+    ├── import-devices.sh
+    ├── special-vdev.sh
+    └── zpool.sh
 
-11 directories, 46 files
+16 directories, 47 files
 ```
 ---
 # 1.
@@ -232,6 +218,7 @@ ZPOOL_OPTIONS="\
 
 ```fish
 
+
 # Create the parent ROOT dataset
 zfs create -o mountpoint=none \
 -o canmount=off \
@@ -244,6 +231,11 @@ zfs create -o mountpoint=/ \
 -o copies=2 \
 nordix/ROOT/default
 
+# Create parent dataset "var"
+zfs create -o mountpoint=none \
+-o canmount=off \
+nordix/var
+
 # Create varcache dataset
 zfs create -o mountpoint=/var/cache \
 -o canmount=on \
@@ -253,7 +245,7 @@ zfs create -o mountpoint=/var/cache \
 -o exec=off \
 -o setuid=off \
 -o devices=off \
-nordix/varcache
+nordix/var/cache
 
 # Create varlog dataset
 zfs create -o mountpoint=/var/log \
@@ -264,18 +256,16 @@ zfs create -o mountpoint=/var/log \
 -o exec=off \
 -o setuid=off \
 -o devices=off \
-nordix/varlog
+nordix/var/log
 
-# Create varlib dataset
-zfs create -o mountpoint=/var/lib \
+# Create var/tmp dataset
+zfs create -o mountpoint=/var/tmp \
 -o canmount=on \
--o compression=zstd-3 \
--o recordsize=32k \
--o primarycache=all \
--o secondarycache=none \
--o devices=off \
+-o recordsize=64k \
+-o xattr=sa \
 -o setuid=off \
-nordix/varlib
+-o devices=off \
+nordix/var/tmp
 
 # Create opt dataset
 zfs create -o mountpoint=/opt \
@@ -296,15 +286,6 @@ zfs create -o mountpoint=/tmp \
 -o logbias=throughput \
 -o primarycache=all \
  nordix/tmp
-
-# Create var/tmp dataset
-zfs create -o mountpoint=/var/tmp \
--o canmount=on \
--o recordsize=64k \
--o xattr=sa \
--o setuid=off \
--o devices=off \
-nordix/vartmp
 
 # Create Home dataset
 zfs create -o mountpoint=/home \
@@ -456,7 +437,7 @@ zfs create -o mountpoint=$_USR/.local/share/Steam/steamapps/common \
 -o setuid=off \
 -o devices=off \
 -o casesensitivity=insensitive \
-nordix/home/local/steam/game
+nordix/home/local/steam/games
 
 # Create Steam compatibilitytools dataset
 zfs create -o mountpoint=$_USR/.local/share/Steam/compatibilitytools.d \
@@ -479,13 +460,4 @@ zfs create -o mountpoint=$_USR/.local/share/Steam/steamapps/shadercache \
 -o setuid=off \
 -o devices=off \
 nordix/home/local/steam/shadercache
-
-# Create VM dataset
-zfs create -o mountpoint=$_USR/.local/vm \
--o canmount=on \
--o compression=lz4 \
--o recordsize=64K \
--o logbias=throughput \
--o primarycache=all \
-nordix/home/local/vm
 ```

@@ -8,8 +8,7 @@ clear
 gum_spin_timer "Loading desktop environment options..."
 
 OPTIONS=(
-    "Niri with VanillaGreen Shell - Preconfigured, ready to use tilling window manager."
-    "GNOME - Modern desktop environment, classic Linux style"
+
     ""
     "Server - Headless/No desktop environment"
 )

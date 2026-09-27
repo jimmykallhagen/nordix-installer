@@ -195,17 +195,17 @@ SELECT_RAM_SIZE="$SCRIPT_DIR/choose-scripts/select-ram-size.sh"
 SELECT_GPU="$SCRIPT_DIR/choose-scripts/select-gpu.sh"
 source "$SCRIPT_DIR/config/ram-size.conf"
 source "$SCRIPT_DIR/config/gpu.conf"
-# Select desktop isnt devoloped yet
-# today it is the new system: Umbreil
+
+# i planned to add selection, between headless server and desktop
+# it is nor developed yet
+# Umbreil is the main system
 # Umbreil is brand new project, but very promising
 # you can consider it experimental
-# there for it will not be several desktop options
-# it will be Nordix setups of Umbreil and  Noctalia shell
+# Nordix setups of Umbreil is with Noctalia shell
 # Both Umbreil and Noctalia shell
 # are developed by the same team - noctalia-dev
-# It is to good to be true so GNOME will be installed as fallback
-# or if you dont want to use a tiling window manager.
-# In the future i plan to add more desktop options.
+# if you dont want a tilling desktop env labwc is installed for displaymanager
+# and is has a preconfigured setup with noctailia shell as well as fallback
 
 while true; do
     clear
@@ -239,7 +239,7 @@ gum_pager "
 
 Today Nordix will come with two desktop environments
  - Umbreil with Noctalia.
- - GNOME
+ - Labwc with Noctalia.
 
 -------------------
 
@@ -259,7 +259,7 @@ On top of Umbreil gives you a real desktop experience.
 Just so you can start without the need to configure the setup.
 
 Not everyone wants a tiling window manager, and umbreil is can be considered experimental.
-So GNOME will be installed besides Umbreil.
+So Labwc will be installed besides Umbreil.
 
 ##=======================##
  # Press ESC to continue #
@@ -267,7 +267,7 @@ So GNOME will be installed besides Umbreil.
 "
 
 # some trolling
-gum_spin_timer "You have selected Umbreil and GNOME, hope you like it!"
+gum_spin_timer "You have selected Umbreil and Labwc, hope you like it!"
 ##======================================================##
 # Done!
 ##======================================================##
@@ -307,26 +307,28 @@ $SET_USERNAME
 # Done!
 ##======================================================##
 
-##########################################################
-# In case some one should notice
-#
-gum_spin_timer "Nordix comes with syntax highlighting as standard for nano!"
-##########################################################
 
 
 ######################- PART6 -###########################
 #
 #
-# INSTALLATION PART1
-# prepare zfs
+clear
+gum_box "INSTALLATION PART1"
 
-CREATE_ZFS_DATASET=$SCRIPT_DIR/scripts/create-dataset.sh
+gum_box_timer "Prepare ZFS dataset"
+gum_box_timer "
+Your home will have English named directories
+To change this you need to change mountpoint on the home dataset
+"
 
+source $SCRIPT_DIR/scripts/create-dataset.sh
 # Prepare the zpool before the main dataset script
 # Create the parent ROOT dataset
 zfs create -o mountpoint=none \
 -o canmount=off \
 nordix/ROOT
+
+sleep 5
 
 # Create system root dataset
 zfs create -o mountpoint=/ \
@@ -334,6 +336,15 @@ zfs create -o mountpoint=/ \
 -o recordsize=64k \
 -o copies=2 \
 nordix/ROOT/default
+
+sleep 5
+
+# Create parent dataset "var"
+zfs create -o mountpoint=none \
+-o canmount=off \
+nordix/var
+
+sleep 0.5
 
 # Export the zpool and import it into /mnt
 zpool export nordix
@@ -379,4 +390,24 @@ fi
 
 
 # create zfs dataset
-$CREATE_ZFS_DATASET
+# from $SCRIPT_DIR/scripts/create-dataset.sh
+create_dataset
+
+# check if all dataset have successfully been created, rerun create_dataset if not
+check_dataset_creation
+
+# Mount the dataset on the temporary mount point /mnt
+mount_datasets
+
+clear
+gum_box_timer "ZFS is prepared and mounted on /mnt"
+
+######################- PART7 -###########################
+#
+# Install the base system
+
+clear
+gum_box "INSTALLATION PART2"
+gum_spin "Installing base system..." pacstrap -K -N /mnt
+gum_spin "Installing linux-firmware..." pacstrap /mnt linux-firmware
+gum_spin "Initializing user"
