@@ -303,6 +303,9 @@ SET_USERNAME=$SCRIPT_DIR/choose-scripts/select-user.sh
 $SET_HOSTNAME
 # set username
 $SET_USERNAME
+
+# Source the user config
+source "$SCRIPT_DIR/config/user.conf"
 ##======================================================##
 # Done!
 ##======================================================##
@@ -406,8 +409,24 @@ gum_box_timer "ZFS is prepared and mounted on /mnt"
 #
 # Install the base system
 
+# Source the base package list
+source "$SCRIPT_DIR/lib/base-package-list.conf"
+
 clear
 gum_box "INSTALLATION PART2"
 gum_spin "Installing base system..." pacstrap -K -N /mnt
 gum_spin "Installing linux-firmware..." pacstrap /mnt linux-firmware
 gum_spin "Initializing user"
+
+######################- PART8 -###########################
+#
+# creating user and configure the home directory
+
+# Source the user install/setup script
+source "$SCRIPT_DIR/install-scripts/user-config.sh"
+
+clear
+gum_box "Configuring user before continuing the installation"
+
+# Run the user install/setup script
+install_user

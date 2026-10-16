@@ -366,7 +366,7 @@ zfs create -o mountpoint=$_USR/Pictures \
 -o devices=off \
 nordix/home/pictures
 
-# Create Config dataset
+# Create Config Videos
 zfs create -o mountpoint=$_USR/Videos \
 -o canmount=on \
 -o recordsize=4M \
@@ -397,6 +397,16 @@ zfs create -o mountpoint=$_USR/Download \
 -o setuid=off \
 -o devices=off \
 nordix/home/downloads
+
+# Create Projects dataset
+zfs create -o mountpoint=/home/$_USER_NAME/Projects \
+-o canmount=on \
+-o recordsize=64k \
+-o logbias=throughput \
+-o primarycache=all \
+-o setuid=off \
+-o devices=off \
+nordix/home/projects
 
 # Create local dataset
 zfs create -o mountpoint=$_USR/.local \

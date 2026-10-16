@@ -1,8 +1,6 @@
 # Nordix ZFS Dataset setup
 
 create_dataset() {
-
-
 # Create varcache dataset
 zfs create -o mountpoint=/var/cache \
 -o canmount=on \
@@ -84,7 +82,7 @@ mkdir -p "/home/$_USER_NAME"
 sleep 0.5
 
 # Create Home cache dataset
-zfs create -o mountpoint=$_USER_NAME/.cache \
+zfs create -o mountpoint=/home/$_USER_NAME/.cache \
 -o canmount=on \
 -o compression=zstd-4 \
 -o recordsize=16k \
@@ -97,7 +95,7 @@ nordix/home/cache
 sleep 0.5
 
 # Create Games dataset
-zfs create -o mountpoint=$_USER_NAME/Games \
+zfs create -o mountpoint=/home/$_USER_NAME/Games \
 -o canmount=on \
 -o recordsize=1M \
 -o logbias=throughput \
@@ -110,7 +108,7 @@ nordix/home/games
 sleep 0.5
 
 # Create Wine-prefix dataset
-zfs create -o mountpoint=$_USER_NAME/Wine-prefix \
+zfs create -o mountpoint=/home/$_USER_NAME/Wine-prefix \
 -o canmount=on \
 -o compression=zstd-3 \
 -o recordsize=32K \
@@ -124,7 +122,7 @@ nordix/home/wine-prefix
 sleep 0.5
 
 # Create Documents dataset
-zfs create -o mountpoint=$_USER_NAME/Documents \
+zfs create -o mountpoint=/home/$_USER_NAME/Documents \
 -o canmount=on \
 -o compression=zstd-4 \
 -o recordsize=16K \
@@ -136,7 +134,7 @@ zfs create -o mountpoint=$_USER_NAME/Documents \
 nordix/home/documents
 
 # Create Config dataset
-zfs create -o mountpoint=$_USER_NAME/.config \
+zfs create -o mountpoint=/home/$_USER_NAME/.config \
 -o canmount=on \
 -o compression=zstd-4 \
 -o recordsize=16K \
@@ -151,7 +149,7 @@ nordix/home/config
 sleep 0.5
 
 # Create Pictures dataset
-zfs create -o mountpoint=$_USER_NAME/Pictures \
+zfs create -o mountpoint=/home/$_USER_NAME/Pictures \
 -o canmount=on \
 -o recordsize=1M \
 -o logbias=throughput \
@@ -164,7 +162,7 @@ nordix/home/pictures
 sleep 0.5
 
 # Create Videos dataset
-zfs create -o mountpoint=$_USER_NAME/Videos \
+zfs create -o mountpoint=/home/$_USER_NAME/Videos \
 -o canmount=on \
 -o recordsize=4M \
 -o logbias=throughput \
@@ -177,7 +175,7 @@ nordix/home/videos
 sleep 0.5
 
 # Create Music dataset
-zfs create -o mountpoint=$_USER_NAME/Music    \
+zfs create -o mountpoint=/home/$_USER_NAME/Music    \
 -o canmount=on \
 -o recordsize=2M \
 -o logbias=throughput \
@@ -190,7 +188,7 @@ nordix/home/music
 sleep 0.5
 
 # Create Download dataset
-zfs create -o mountpoint=$_USER_NAME/Download \
+zfs create -o mountpoint=/home/$_USER_NAME/Download \
 -o canmount=on \
 -o recordsize=128k \
 -o logbias=throughput \
@@ -201,8 +199,20 @@ nordix/home/downloads
 
 sleep 0.5
 
+# Create Projects dataset
+zfs create -o mountpoint=/home/$_USER_NAME/Projects \
+-o canmount=on \
+-o recordsize=64k \
+-o logbias=throughput \
+-o primarycache=all \
+-o setuid=off \
+-o devices=off \
+nordix/home/projects
+
+sleep 0.5
+
 # Create local dataset
-zfs create -o mountpoint=$_USER_NAME/.local \
+zfs create -o mountpoint=/home/$_USER_NAME/.local \
 -o canmount=on \
 -o logbias=throughput \
 -o primarycache=metadata \
@@ -213,7 +223,7 @@ nordix/home/local
 sleep 0.5
 
 # Create Lutris dataset
-zfs create -o mountpoint=$_USER_NAME/.local/share/lutris \
+zfs create -o mountpoint=/home/$_USER_NAME/.local/share/lutris \
 -o canmount=on \
 -o recordsize=32k \
 -o logbias=throughput \
@@ -226,7 +236,7 @@ nordix/home/local/lutris
 sleep 0.5
 
 # Create Steam dataset
-zfs create -o mountpoint=$_USER_NAME/.local/share/Steam \
+zfs create -o mountpoint=/home/$_USER_NAME/.local/share/Steam \
 -o canmount=on \
 -o compression=zstd-3 \
 -o recordsize=1M \
@@ -240,7 +250,7 @@ nordix/home/local/steam
 sleep 0.5
 
 # Create Steam game dataset
-zfs create -o mountpoint=$_USER_NAME/.local/share/Steam/steamapps/common \
+zfs create -o mountpoint=/home/$_USER_NAME/.local/share/Steam/steamapps/common \
 -o canmount=on \
 -o recordsize=1M \
 -o logbias=throughput \
@@ -253,7 +263,7 @@ nordix/home/local/steam/games
 sleep 0.5
 
 # Create Steam compatibilitytools dataset
-zfs create -o mountpoint=$_USER_NAME/.local/share/Steam/compatibilitytools.d \
+zfs create -o mountpoint=/home/$_USER_NAME/.local/share/Steam/compatibilitytools.d \
 -o canmount=on \
 -o compression=zstd-3 \
 -o recordsize=32K \
@@ -266,7 +276,7 @@ nordix/home/local/steam/proton
 sleep 0.5
 
 # Create Steam shadercache dataset
-zfs create -o mountpoint=$_USER_NAME/.local/share/Steam/steamapps/shadercache \
+zfs create -o mountpoint=/home/$_USER_NAME/.local/share/Steam/steamapps/shadercache \
 -o canmount=on \
 -o compression=lz4 \
 -o recordsize=16K \
@@ -278,162 +288,47 @@ nordix/home/local/steam/shadercache
 }
 
 
+
+DATASET_ARRAY=(
+    "nordix/home"
+    "nordix/home/local"
+    "nordix/home/local/lutris"
+    "nordix/home/local/steam"
+    "nordix/home/local/steam/shadercache"
+    "nordix/home/local/steam/games"
+    "nordix/home/local/steam/proton"
+    "nordix/home/music"
+    "nordix/home/wine-prefix"
+    "nordix/home/games"
+    "nordix/home/config"
+    "nordix/home/pictures"
+    "nordix/home/videos"
+    "nordix/home/documents"
+    "nordix/home/downloads"
+    "nordix/home/projects"
+    "nordix/var/cache"
+    "nordix/var/log"
+    "nordix/var/tmp"
+    "nordix/opt"
+    "nordix/tmp"
+)
+
+# check if all dataset have successfully been created, run create_dataset
 check_dataset_creation() {
-
-# check if all dataset have successfully been created
-
-# Check if home dataset is created, if not, run create_dataset
-if zfs list nordix/home | grep MOUNTPOINT; then
-    continue
-else
-    # run create_dataset if dataset is not created
-    create_dataset
-fi
-
-# Check if home/local dataset is created, if not, run create_dataset
-if zfs list nordix/home/local | grep MOUNTPOINT; then
-    continue
-else
-    # run create_dataset if dataset is not created
-    create_dataset
-fi
-
-# Check if home/cache dataset is created, if not, run create_dataset
-if zfs list nordix/home/cache | grep MOUNTPOINT; then
-    continue
-else
-    # run create_dataset if dataset is not created
-    create_dataset
-fi
-
-# Check if home/video dataset is created, if not, run create_dataset
-if zfs list nordix/home/video | grep MOUNTPOINT; then
-    continue
-else
-    # run create_dataset if dataset is not created
-    create_dataset
-fi
-
-# Check if home/pictures dataset is created, if not, run create_dataset
-if zfs list nordix/home/pictures | grep MOUNTPOINT; then
-    continue
-else
-    # run create_dataset if dataset is not created
-    create_dataset
-fi
-
-# Check if home/downloads dataset is created, if not, run create_dataset
-if zfs list nordix/downloads | grep MOUNTPOINT; then
-    continue
-else
-    # run create_dataset if dataset is not created
-    create_dataset
-fi
-
-# Check if home/documents dataset is created, if not, run create_dataset
-if zfs list nordix/home/documents | grep MOUNTPOINT; then
-    continue
-else
-    # run create_dataset if dataset is not created
-    create_dataset
-fi
-
-# Check if home/lutris dataset is created, if not, run create_dataset
-if zfs list nordix/home/local/lutris | grep MOUNTPOINT; then
-    continue
-else
-    # run create_dataset if dataset is not created
-    create_dataset
-fi
-
-# Check if home/local/steam dataset is created, if not, run create_dataset
-if zfs list nordix/home/local/steam | grep MOUNTPOINT; then
-    continue
-else
-    # run create_dataset if dataset is not created
-    create_dataset
-fi
-
-# Check if home/local/steam/shadercache dataset is created, if not, run create_dataset
-if zfs list nordix/home/local/steam/shadercache | grep MOUNTPOINT; then
-    continue
-else
-    # run create_dataset if dataset is not created
-    create_dataset
-fi
-
-# Check if home/local/steam/game dataset is created, if not, run create_dataset
-if zfs list nordix/home/local/steam/games | grep MOUNTPOINT; then
-    continue
-else
-    # run create_dataset if dataset is not created
-    create_dataset
-fi
-
-# Check if home/local/steam/proton dataset is created, if not, run create_dataset
-if zfs list nordix/home/local/steam/proton | grep MOUNTPOINT; then
-    continue
-else
-    # run create_dataset if dataset is not created
-    create_dataset
-fi
-
-# Check if home/music dataset is created, if not, run create_dataset
-if zfs list nordix/home/music | grep MOUNTPOINT; then
-    continue
-else
-    # run create_dataset if dataset is not created
-    create_dataset
-fi
-
-# Check if home/wine-prefix dataset is created, if not, run create_dataset
-if zfs list nordix/home/wine-prefix | grep MOUNTPOINT; then
-    continue
-else
-    # run create_dataset if dataset is not created
-    create_dataset
-fi
-
-# Check if home/games dataset is created, if not, run create_dataset
-if zfs list nordix/home/games | grep MOUNTPOINT; then
-    continue
-else
-    # run create_dataset if dataset is not created
-    create_dataset
-fi
-
-# Check if home/config dataset is created, if not, run create_dataset
-if zfs list nordix/home/config | grep MOUNTPOINT; then
-    continue
-else
-    # run create_dataset if dataset is not created
-    create_dataset
-fi
+for dataset in "${DATASET_ARRAY[@]}"; do
+    if zfs list "$dataset" | grep MOUNTPOINT; then
+        echo "Dataset $dataset is already created"
+    else
+        echo "Dataset $dataset is not created, running create_dataset"
+        # run create_dataset if dataset is not created
+        create_dataset
+    fi
+done
 }
 
-
+# Mount all datasets
 mount_datasets() {
-    zfs mount nordix/home
-    zfs mount nordix/home/local
-    zfs mount nordix/home/local/lutris
-    zfs mount nordix/home/local/steam
-    zfs mount nordix/home/local/steam/shadercache
-    zfs mount nordix/home/local/steam/games
-    zfs mount nordix/home/local/steam/proton
-    zfs mount nordix/home/music
-    zfs mount nordix/home/wine-prefix
-    zfs mount nordix/home/games
-    zfs mount nordix/home/config
-    zfs mount nordix/home/pictures
-    zfs mount nordix/home/videos
-    zfs mount nordix/home/documents
-    zfs mount nordix/home/downloads
-    zfs mount nordix/home/music
-    zfs mount nordix/home/wine-prefix
-    zfs mount nordix/home/config
-    zfs mount nordix/var/cache
-    zfs mount nordix/var/log
-    zfs mount nordix/var/tmp
-    zfs mount nordix/opt
-    zfs mount nordix/tmp
+    for dataset in "${DATASET_ARRAY[@]}"; do
+        zfs mount "$dataset"
+    done
 }
