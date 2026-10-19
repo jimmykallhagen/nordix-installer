@@ -22,7 +22,7 @@ SPECIAL_VDEV="${SCRIPT_DIR}/choose-scripts/select-special.sh"
 SLOG_VDEV="${SCRIPT_DIR}/choose-scripts/select-slog.sh"
 L2ARC_VDEV="${SCRIPT_DIR}/choose-scripts/select-l2arc.sh"
 
-
+# Set base color for the terminal
 echo -ne "\e]10;${G_BASE_COLOR}\a"
 clear
 
@@ -229,15 +229,13 @@ done
 
 # desktop selection info
 gum_pager "
--*****************************************************-
--** Today Nordix is in the early stages of development **-
--*** I will never be finished if i keep adding features ***-
--** So for today you get Nordix with two desktop environments **-
--*************************************************************-
+#============================================================#
+    Today Nordix is in the early stages of development
+    I will never be finished if i keep adding features
+  So for today you get Nordix with two desktop environments
+#============================================================#
 
--------------------
-
-Today Nordix will come with two desktop environments
+Nordix comes with two desktop environments:
  - Umbreil with Noctalia.
  - Labwc with Noctalia.
 
@@ -246,20 +244,22 @@ Today Nordix will come with two desktop environments
 Umbreil is brand new project, highly potential and very promising,
 but you can consider it experimental
 
--** Umbreil **-
-gives you a smooth, complete tiling window manager experience,
+Umbreilgives you a smooth, complete tiling window manager experience,
 that supports scratchpads, workspaces and shift layout on the go.
 Layouts: Scrolling, Master and Dwindle layout.
-All with beautifully blurr, animations, themes and more.
+With beautifully blurr, animations, themes and more.
 
--** Noctalia **-
+Noctalia
 On top of Umbreil gives you a real desktop experience.
 
--** Preconfigured by Nordix **-
-Just so you can start without the need to configure the setup.
+Preconfigured by Nordix
+Just start without the need to configure the setup.
 
-Not everyone wants a tiling window manager, and umbreil is can be considered experimental.
-So Labwc will be installed besides Umbreil.
+In Nordix Labwc run the displaymanager, so it is also configured as a standalone desktop environment.
+
+Labwc is a lightweight, high performance compositing window manager, that handle window the traditional way.
+Labwc is also highly customizable, and comes in Nordix also with the Noctalia shell and some keybinds preconfigured.
+Lawbc is also HEAVILY reliable.
 
 ##=======================##
  # Press ESC to continue #
@@ -416,7 +416,9 @@ clear
 gum_box "INSTALLATION PART2"
 gum_spin "Installing base system..." pacstrap -K -N /mnt
 gum_spin "Installing linux-firmware..." pacstrap /mnt linux-firmware
-gum_spin "Initializing user"
+gum_spin "Installing base-devel..." pacstrap /mnt base-devel
+clear
+gum_box_sleep "Base system installed, initializing user before continuing..."
 
 ######################- PART8 -###########################
 #
@@ -430,3 +432,8 @@ gum_box "Configuring user before continuing the installation"
 
 # Run the user install/setup script
 install_user
+
+######################- PART9 -###########################
+#
+# Continue with the installation
+#

@@ -10,10 +10,11 @@ echo -ne "\e]10;${G_BASE_COLOR}\a"
 # Choose package
 OPTIONS=(
     'Docker - ZFS drivers'
-    'SSH'
-    'VM - qemu-desktop,libvirt,virt-manager,libnbd,libguestfs'
+    'SSH -  OpenSSH remote login client'
+    'VM - Run virtual machines with Qemu, KVM, libvirt and Virt-Manager'
     'Ollama - Host local ai, simpel terminal ui, good support to supply local ai models to other ai tools'
     'LmStudio - Host local ai, full GUI from start, can be used to supply local ai models to other ai tools'
+    'Unsloth - Fast inference and fine-tuning for transformer models, with webui'
     'Cockpit - Web-based server management'
     ""
     'Exit'
@@ -49,10 +50,11 @@ while true; do
             case "$line" in
                 "Docker - ZFS drivers")   echo "PKG-H1=docker" >> "${OUTPUT_FILE}"  ;;
                 "SSH")   echo "PKG-H2=ssh" >> "${OUTPUT_FILE}" ;;
-                "VM - qemu-desktop,libvirt,virt-manager,libnbd,libguestfs") echo "PKG-H3=VM" >> "${OUTPUT_FILE}" ;;
-                "Ollama") echo "PKG-H4=ollama" >> "${OUTPUT_FILE}" ;;
-                "LmStudio") echo "PKG-H5=lmstudio" >> "${OUTPUT_FILE}" ;;
-                "Cockpit - Web-based server management") echo "PKG-H6=cockpit" >> "${OUTPUT_FILE}" ;;
+                "VM*") echo "PKG-H3=VM" >> "${OUTPUT_FILE}" ;;
+                "Ollama*") echo "PKG-H4=ollama" >> "${OUTPUT_FILE}" ;;
+                "LmStudio*") echo "PKG-H5=lmstudio" >> "${OUTPUT_FILE}" ;;
+                "Unsloth*") echo "PKG-H6=unsloth" >> "${OUTPUT_FILE}" ;;
+                "Cockpit - Web-based server management") echo "PKG-H7=cockpit" >> "${OUTPUT_FILE}" ;;
             esac
         done <<< "$CHOICE_FILTERED"
         break
