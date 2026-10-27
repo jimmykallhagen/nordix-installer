@@ -44,10 +44,11 @@ The philosophy behind the Nordix installer is that it should be modular and easy
 
 # Contribute
 
-Things I write tend to be a bit enthusiastic, but I have to let it be, nothing is written in stone and if you are someone who wants to contribute to this project and maybe make it have a less enthusiastic, are welcome to help me with this, you are welcome to help and contribute even if you don't want to change the impression of course
+i gonna expand this area, but evryithing i can get help with is more than welcome
 
 ---
 ## Some info
+
 ---
 **The installer supports:**
  - Single drive
@@ -65,40 +66,62 @@ Things I write tend to be a bit enthusiastic, but I have to let it be, nothing i
  - Slog
 
 ---
-## The structure for now (I will update it with order and functionality soon)
-**(The list isn't complete yet)**
-```bash
 
-tree
+## The structure for now (I will update it with order and functionality soon)
+**(The list isn't complete yet) the old scripts with gum shell scripts is for now still in the installer**
+
+```bash
+ tree
 .
 ├── LICENSE
 ├── README.md
 ├── choose-scripts
-│   ├── select-boot-drive.sh
-│   ├── select-desktop-env.sh
-│   ├── select-extra-vdev.sh
-│   ├── select-gpu.sh
-│   ├── select-hostname.sh
-│   ├── select-l2arc.sh
-│   ├── select-locale.sh
-│   ├── select-ram-size.sh
-│   ├── select-slog.sh
-│   ├── select-special.sh
-│   ├── select-timezone.sh
-│   ├── select-user.sh
-│   └── select-zpool-type.sh
+│   ├── old-gum-scripts
+│   │   ├── select-boot-drive.sh
+│   │   ├── select-extra-vdev.sh
+│   │   ├── select-gpu.sh
+│   │   ├── select-hostname.sh
+│   │   ├── select-l2arc.sh
+│   │   ├── select-locale.sh
+│   │   ├── select-ram-size.sh
+│   │   ├── select-slog.sh
+│   │   ├── select-special.sh
+│   │   ├── select-timezone.sh
+│   │   ├── select-user.sh
+│   │   └── select-zpool-type.sh
+│   ├── select-boot-drive-dialog.sh
+│   ├── select-extra-vdev-dialog.sh
+│   ├── select-gpu-dialog.sh
+│   ├── select-gpu.dialog.sh
+│   ├── select-hostname-dialog.sh
+│   ├── select-l2arc-dialog.sh
+│   ├── select-locale-dialog.sh
+│   ├── select-ram-size-dialog.sh
+│   ├── select-slog-dialog.sh
+│   ├── select-special-dialog.sh
+│   ├── select-timezone-dialog.sh
+│   ├── select-user.dialog.sh
+│   └── select-zpool-type-dialog.sh
 ├── config
-│   ├── desktop.env.conf
+│   ├── additional_drives_special.conf
 │   ├── device-list-vdev.conf
-│   ├── extra-pkg-homelab.conf
+│   ├── device_list_special.conf
+│   ├── drives.conf
+│   ├── selected-special-drives.conf
+│   ├── selected-zpool-layout.conf
 │   ├── selected_boot_drive.conf
-│   └── user.conf
+│   ├── selected_drives.conf
+│   └── special-layout.conf
 ├── extra-pkg
+│   ├── select-extra-pkg-creative-dialog.sh
 │   ├── select-extra-pkg-creative.sh
+│   ├── select-extra-pkg-dev-dialog.sh
 │   ├── select-extra-pkg-dev.sh
+│   ├── select-extra-pkg-gaming-dialog.sh
 │   ├── select-extra-pkg-gaming.sh
+│   ├── select-extra-pkg-homelab-dialog.sh
 │   ├── select-extra-pkg-homelab.sh
-│   ├── select-extra-pkg-mail-calendar.sh
+│   ├── select-extra-pkg-office-utils-dialog.sh
 │   └── select-extra-pkg-office-utils.sh
 ├── gum-lib
 │   └── gum.conf
@@ -109,23 +132,60 @@ tree
 │   ├── zfs-info-advanced
 │   └── zfs-info-vdev
 ├── install-scripts
-│   └── chrootyou.sh
+│   ├── chrootyou.sh
+│   └── install-user.sh
 ├── lib
 │   ├── locale.conf
+│   ├── package-list.conf
 │   └── timezone.conf
 ├── nordix.sh
 ├── preemade-configs
 │   ├── amd
-│   │   └── modprobe.d
-│   │       ├── amdgpu.conf
-│   │       └── zfs.conf
+│   │   ├── environment
+│   │   ├── mkinitcpio.conf
+│   │   ├── modprobe.d
+│   │   │   ├── amdgpu.conf
+│   │   │   └── zfs.conf
+│   │   ├── profile.d
+│   │   │   ├── nordix-game-amd.sh
+│   │   │   └── nordix-game.sh
+│   │   └── vconsole.conf
+│   ├── dxvk.conf
 │   ├── intel
-│   │   └── modproble.d
-│   │       └── zfs.conf
-│   └── nvidia
-│       └── modproble.d
-│           ├── nvidia.conf
-│           └── zfs.conf
+│   │   ├── environment
+│   │   ├── mkinitcpio.conf
+│   │   ├── modprobe.d
+│   │   │   ├── i915.conf
+│   │   │   └── zfs.conf
+│   │   ├── profile.d
+│   │   │   ├── nordix-game-intel.sh
+│   │   │   └── nordix-game.sh
+│   │   └── vconsole.conf
+│   ├── nvidia
+│   │   ├── environment
+│   │   ├── mkinitcpio.conf
+│   │   ├── modprobe.d
+│   │   │   ├── nvidia.conf
+│   │   │   └── zfs.conf
+│   │   ├── profile.d
+│   │   │   ├── nordix-game-nvidia.sh
+│   │   │   └── nordix-game.sh
+│   │   └── vconsole.conf
+│   └── umbriel
+│       ├── animation.toml
+│       ├── appearnce.toml
+│       ├── config.old
+│       ├── config.toml
+│       ├── effects.toml
+│       ├── environment.toml
+│       ├── input.toml
+│       ├── keybind.toml
+│       ├── layerrules.toml
+│       ├── layout.toml
+│       ├── monitor.toml
+│       ├── noctalia.toml
+│       ├── overview.toml
+│       └── windowrule.toml
 └── scripts
     ├── create-dataset.sh
     ├── erase-drive.sh
@@ -134,9 +194,10 @@ tree
     ├── special-vdev.sh
     └── zpool.sh
 
-16 directories, 47 files
+21 directories, 100 files
 ```
 ---
+
 # 1.
 ### ``It starts with select-boot-drive.sh``.
 Gum shell scripts will give the options to the user to choose a separate device for boot to be able to give whole disk to zfs for best performance
