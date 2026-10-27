@@ -21,9 +21,9 @@ OPTIONS=(
     "Krita - Digital painting and illustration software"
     "Inkscape - Vector graphics editor"
     "Shotcut - Video editing software"
-    "Kdenlive - Video editing software"
     "OBS Studio - Open Broadcaster Software"
     "GPU Screen Recorder - The fastest screen recorder for Linux"
+    "Upscayl Desktop app - AI image upscaling software"
     ""
     "Exit"
 )
@@ -58,9 +58,9 @@ OPTIONS=(
                 "Krita - Digital painting and illustration software")   echo "PKG-C3=krita" >> "${OUTPUT_FILE}"  ;;
                 "Inkscape - Vector graphics editor")   echo "PKG-C4=inkscape" >> "${OUTPUT_FILE}"  ;;
                 "Shotcut - Video editing software")   echo "PKG-C5=shotcut" >> "${OUTPUT_FILE}"  ;;
-                "Kdenlive - Video editing software")   echo "PKG-C6=kdenlive" >> "${OUTPUT_FILE}"  ;;
-                "OBS Studio - Open Broadcaster Software")   echo "PKG-C7=obs-studio" >> "${OUTPUT_FILE}"  ;;
-                "GPU Screen Recorder - The fastest screen recorder for Linux")   echo "PKG-C8=gpu-screen-recorder" >> "${OUTPUT_FILE}"  ;;
+                "OBS Studio - Open Broadcaster Software")   echo "PKG-C6=obs-studio" >> "${OUTPUT_FILE}"  ;;
+                "GPU Screen Recorder - The fastest screen recorder for Linux")   echo "PKG-C7=gpu-screen-recorder" >> "${OUTPUT_FILE}"  ;;
+                "Upscayl Desktop app - AI image upscaling software")   echo "PKG-C8=upscayl-desktop-git" >> "${OUTPUT_FILE}"  ;;
           esac
         done <<< "$CHOICE_FILTERED"
         break

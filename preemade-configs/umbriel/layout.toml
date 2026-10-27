@@ -1,0 +1,63 @@
+
+# ==============================================================================
+# Layout
+# New scrolling-layout windows start at half the output width. Without this
+# setting, each application chooses its starting width. Stacked columns retain
+# their most recently focused row when focus leaves and later returns.
+# https://docs.noctalia.dev/umbriel/layout/
+#[layout]
+#extent_presets = [0.333, 0.5, 0.667]
+
+# What a tiled window's own maximize button does: "column" fills the column,
+# "edges" fills the usable area without struts, gaps, or borders. The
+# window-toggle-maximize action is unaffected.
+# client_maximize = "column"
+
+
+[layout]
+mode = "scrolling"                                 # scrolling, dwindle, or master
+gap = 8                                         # Logical pixels between tiles, 0-500
+#idth_presets = [0.333, 0.5, 0.667]             # Width and height cycling fractions
+#extent_presets = [0.333, 0.5, 0.667]
+extent_presets = [0.333, 0.5, 0.667]
+
+[layout.struts]
+# Signed logical pixels reserved after panel exclusive zones. Negative values
+# expand the tiled area beyond that edge.
+left = 0                                        # -65535 to 65535
+right = 0
+top = 0
+bottom = 0
+[layout.scrolling]
+default_extent_fraction = 0.55
+center_underfull_strip = true
+center_focused = "never"
+
+#@[layout.scrollincenter_underfull_strip = true                   # Center a strip narrower than the viewport
+#fscorrldefault_extent_fraction = 0.5
+
+#[layout.dwindle]
+# preserve_split = false                        # Keep every split direction fixed after creation
+[layout.master]
+position = "left"                               # left or right master area
+default_width_fraction = 0.55                   # Initial master area fraction, 0.1-0.9
+new_on_top = true                               # Put new windows at the top of the stack
+
+# A tab group shows one window at a time below a bar of titles, and stacks and
+# resizes like any row of its column. Mod+W tabs the focused window with the
+# windows stacked beside it; Mod+Shift+J/K move a tab out of its group or a
+# window into one. Click, scroll, or drag a title to switch, reorder, or pull it
+# out.
+# [layout.tabs]
+# default_display = "normal"
+# new_tab_position = "after_active"
+# middle_click_closes = true
+#
+# [appearance.tab_bar]
+# style = "titles"         # "indicator" draws thin slots without titles
+# height = 24
+# font = "sans 10"
+# visible = true           # false hides every bar; tabs keep working
+# hide_when_single = false
+# max_tabs = 6            # show at most 6 slots; more tabs scroll
+# overflow = "scroll"      # or "shrink" to fit every tab

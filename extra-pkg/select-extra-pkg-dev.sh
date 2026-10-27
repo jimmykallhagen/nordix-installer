@@ -19,10 +19,8 @@ OPTIONS=(
     "Zed Editor - Featureful and powerful agent driven text editor, good alternative to VSCode"
     "Bluefish - Editor aimed at web developers, supporting various programming languages."
     "Emacs - Classic, extensible editor with a built-in development environment"
-    "Vim - Terminal-based text editor with powerful features"
     "Neovim - Powerful terminal-based text, editor fork of Vim"
     "Helix - Vim like terminal-based text editor"
-    "Kate - Editor from KDE"
     "Sublime text 4 - Powerful text editor with a focus on speed and efficiency, proprietary offer unlimited free trials"
     ""
     'Exit'
@@ -56,11 +54,9 @@ OPTIONS=(
                 "Zed Editor - Featureful and high-performance agent driven text editor, strong alternative to VSCode")   echo "PKG-W1=zed" >> "${OUTPUT_FILE}"  ;;
                 "Bluefish - Editor aimed at web developers, supporting various programming languages.")   echo "PKG-W2=bluefish" >> "${OUTPUT_FILE}"  ;;
                 "Emacs - Classic, extensible editor with a built-in development environment")   echo "PKG-W3=emacs" >> "${OUTPUT_FILE}"  ;;
-                "Vim - Terminal-based text editor with powerful features")   echo "PKG-W4=vim" >> "${OUTPUT_FILE}"  ;;
-                "Neovim - Powerful terminal-based text, editor fork of Vim")   echo "PKG-W5=neovim" >> "${OUTPUT_FILE}"  ;;
-                "Helix - Vim like terminal-based text editor")   echo "PKG-W6=helix" >> "${OUTPUT_FILE}"  ;;
-                "Kate - Editor from KDE")   echo "PKG-W7=kate" >> "${OUTPUT_FILE}"  ;;
-                "Sublime text 4 - Powerful text editor with a focus on speed and efficiency, proprietary offer unlimited free trials")   echo "PKG-W8=sublime" >> "${OUTPUT_FILE}"  ;;
+                "Neovim - Powerful terminal-based text, editor fork of Vim")   echo "PKG-W4=neovim" >> "${OUTPUT_FILE}"  ;;
+                "Helix - Vim like terminal-based text editor")   echo "PKG-W5=helix" >> "${OUTPUT_FILE}"  ;;
+                "Sublime text 4 - Powerful text editor with a focus on speed and efficiency, proprietary offer unlimited free trials")   echo "PKG-W6=sublime" >> "${OUTPUT_FILE}"  ;;
           esac
         done <<< "$CHOICE_FILTERED"
         break

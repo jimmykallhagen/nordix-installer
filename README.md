@@ -363,7 +363,8 @@ zfs create -o mountpoint=$_USR/Pictures \
 -o primarycache=metadata \
 -o exec=off \
 -o setuid=off \
--o devices=off \
+-o devices=off \1
+
 nordix/home/pictures
 
 # Create Config Videos

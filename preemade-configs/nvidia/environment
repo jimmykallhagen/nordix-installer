@@ -1,0 +1,11 @@
+# This file is parsed by pam_env module
+#
+# Syntax: simple "KEY=VAL" pairs on separate lines
+
+# Multithread for Zstd and Lz4 
+# 0 = autodetect all cores for both Zstd and Lz4
+ZSTD_NBTHREADS=0
+LZ4_NBWORKERS=0
+
+
+

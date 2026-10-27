@@ -1,0 +1,35 @@
+
+# ==============================================================================
+# Effects
+# Every effect is off until a preset is selected; border and window effects
+# scale with overview zoom. Include a bundled preset (adjust /usr for the
+# package prefix), then select it by name.
+# https://docs.noctalia.dev/umbriel/effects/
+# [include]
+# files = ["/usr/share/umbriel/effects/border/pulse/effect.toml"]
+# For a cursor tail, include /usr/share/umbriel/effects/cursor/trail/effect.toml
+# and set cursor = "trail" in [effects].
+# For audio-reactive borders, include /usr/share/umbriel/effects/border/audio/effect.toml
+# and set border = "audio" in [effects].
+# Enable Noctalia's Umbriel audio provider in its shell settings, or supply an
+# external effect-audio v2 producer with 64 spectrum bands. Umbriel does not capture audio.
+# Pools accept matching presets defined/included separately. This one-member
+# example uses the bundled pulse preset; add other border names to choose.
+# [effects]
+# border = "pulse"
+
+
+
+
+[effects.pool.borders]
+ kind = "border"
+ choose = ["pulse"]
+# selection = "unused_first" # or round_robin, random
+# Select with border = "borders" in your [effects] table.
+# Add to your existing [keybinds] table:
+# "Mod+Shift+S" = "effect-border-cycle:borders"
+# "Mod+Ctrl+S" = "effect-border-toggle"
+# "Super+Alt+S" = "effect-border-reset"
+
+ [effects]
+ border = "pulse"

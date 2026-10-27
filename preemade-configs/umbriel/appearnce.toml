@@ -1,0 +1,7 @@
+[appearance]
+prefer_no_csd = true
+border_width = 1
+outer_border_width = 1
+corner_radius = 5
+drag_opacity = 0.7
+opaque_fullscreen = true

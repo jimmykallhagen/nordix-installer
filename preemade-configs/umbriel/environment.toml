@@ -1,0 +1,33 @@
+
+
+# ==============================================================================
+
+# Session environment
+# Values apply only at session startup. Native sessions also publish them to
+# newly started systemd user services. Add or uncomment values as needed.
+# Documentation: https://docs.noctalia.dev/umbriel/configuration/#environment
+
+[environment]
+GTK_THEME = "nordix-dynamic-theme:dark" # "Adwaita:dark"
+QT_QPA_PLATFORMTHEME = "qt6ct"
+MOZ_ENABLE_WAYLAND = "1"
+EDITOR="nano" # with color!
+GDK_BACKEND="wayland,x11"
+QT_WAYLAND_DISABLE_WINDOWDECORATION="1"
+ELECTRON_OZONE_PLATFORM_HINT="auto"
+MOZ_GTK_TITLEBAR_DECORATION="0"
+WEBKIT_FORCE_COMPOSITING_MODE="1"
+BEMENU_BACKEND="wayland"
+NO_AT_BRIDGE="1"
+CLUTTER_BACKEND="wayland"
+JAVA_AWT_WM_NONREPARENTING="1"
+JAVA_OPTIONS="-Dawt.useSystemAAFontSettings=on -Dswing.aatext=true -Dswing.defaultlaf=com.sun.java.swing.plaf.gtk.GTKLookAndFeel -Dswing.crossplatformlaf=com.sun.java.swing.plaf.gtk.GTKLookAndFeel"
+JAVA_FONTS="/usr/share/fonts/TTF"
+ECORE_EVAS_ENGINE="wayland-egl"
+ELM_ENGINE="wayland_egl"
+ELM_DISPLAY="wl"
+ELM_ACCEL="gl"
+AMD_VULKAN_ICD="RADV"
+LIBVA_DRIVER_NAME="radeonsi"
+VDPAU_DRIVER="radeonsi"
+GDK_USE_PORTAL="1"

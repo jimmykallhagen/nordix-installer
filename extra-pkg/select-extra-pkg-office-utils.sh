@@ -17,6 +17,7 @@ while true; do
 OPTIONS=(
     "LibreOffice Fresh - Completely featured office suite"
     "PeaZip - File and archive manager application features volume spanning, compression and authenticated encryption"
+"Qbittorrent - BitTorrent client"
     ""
     'Exit'
 )

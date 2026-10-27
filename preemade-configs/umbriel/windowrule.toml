@@ -1,0 +1,96 @@
+
+
+
+# ==============================================================================
+# Window rules
+# Rules combine in order, with later values overriding earlier ones.
+# https://docs.noctalia.dev/umbriel/window-rules/
+
+# Blur windows using the non-optimized path so translucent windows include
+# overlapping windows behind them.
+[[window_rule]]
+blur = true
+blur_optimized = false
+
+[[window_rule]]
+match.app_id = "^dev.noctalia.Noctalia$"
+default_floating = true
+default_floating_size_px = { width = 1020, height = 900 }
+
+[[window_rule]]
+match.app_id = "^dev.noctalia.UmbrielSharePicker$"
+default_floating = true
+default_floating_size_px = { width = 800, height = 600 }
+
+[[window_rule]]
+match.title = "^(Picture-in-Picture|Picture in picture)$"
+default_floating = true
+default_maximize = false
+default_position = { x = 20, y = 20, anchor = "bottom_right" }
+
+[[window_rule]]
+match.title = "^notificationtoasts_.+_desktop"
+default_position = { x = 0, y = 0, anchor = "bottom_right" }
+default_focused = false
+default_pinned = true
+
+# Keep game menus inside their window; a focus or workspace keybind releases the pointer.
+ [[window_rule]]
+ match.app_id = "^steam_app_.*$"
+ confine_pointer = true
+
+# Named scratchpads can launch an application when toggled while empty.
+ #[[scratchpad]]
+ #name = "music"
+## spawn_when_empty = "spotify"
+
+# [[window_rule]]
+# match.app_id = "^spotify$"
+# default_scratchpad = "music"
+
+# Give scratchpad windows their own border colors.
+ [[window_rule]]
+ match.is_scratchpad = true
+ border_color_focused = "#E5C07BFF"
+ border_color_unfocused = "#5C4A2AFF"
+
+# Leave an application that draws its own corners and shadow undecorated.
+# [[window_rule]]
+# match.app_id = "^org[.]gnome[.]TextEditor$"
+# border_width = 0
+# corner_radius = 0
+# shadow = false
+
+ [[window_rule]]
+ match.content_type = "game"
+vrr = "disabled"
+tearing = true
+default_floating = true
+default_fullscreen = true
+
+ [[window_rule]]
+ match.xdg_tag = "^proton-game$"
+ default_fullscreen = true
+ default_floating = true
+
+[[window_rule]]
+ match.app_id = "^it.mijorus.smile$"
+ default_floating = true
+ default_focused = true
+ focus_on_activate = true
+ opacity = 0.95
+ blur_popups = true
+ blur_ignore_alpha = 0.1
+ window_effect = "scanlines"
+ default_floating_size_px = { width = 500, height = 600 }
+ shadow = true
+
+[[window_rule]]
+ match.app_id = "^Alacritty$"
+ default_floating = false
+ default_focused = true
+ focus_on_activate = true
+ opacity = 0.95
+ blur_popups = true
+ blur_ignore_alpha = 0.1
+#window_effect = "scanlines"

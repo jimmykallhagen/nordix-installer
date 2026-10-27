@@ -1,0 +1,25 @@
+# ==============================================================================
+# Outputs
+
+# Outputs are machine-specific. Run `umbriel outputs` to find names and modes.
+# https://docs.noctalia.dev/umbriel/outputs/
+#
+# [output.DP-1]
+# mode = "2560x1440@144"
+# position = [0, 0]
+# scale = 1.25
+# vrr = "fullscreen"
+# hdr = "auto"
+
+ [output.HDMI-A-1]
+ enabled = true                                # False removes the output but preserves its state
+ mode = "1920x1080@60"                         # WIDTHxHEIGHT or WIDTHxHEIGHT@HZ
+ position = [0, 0]                             # Logical top-left; omit for automatic placement
+ scale = 1.0                                   # Logical size is mode size divided by scale
+ transform = "normal"                          # normal, 90, 180, 270, or a flipped variant
+ vrr = "fullscreen"                            # disabled, always, or fullscreen
+ tearing = true                                # Permit eligible fullscreen asynchronous flips
+ direct_scanout = true                         # False forces composition on this output
+ hdr = "off"                                   # off, on, auto, or fullscreen
+# sdr_white = 203                              # SDR reference white in cd/m2 during HDR
+# workspaces = 5                               # Omit for dynamic workspaces

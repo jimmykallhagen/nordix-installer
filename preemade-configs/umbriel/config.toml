@@ -1,0 +1,115 @@
+# Umbriel starting configuration
+#
+# Copy this file to ~/.config/umbriel/config.toml. Most changes apply when the
+# file is saved. Check edits with `umbriel config validate`.
+#
+# Complete reference: https://docs.noctalia.dev/umbriel/
+#
+# Commented settings below are examples, not built-in defaults.
+
+# ==============================================================================
+# Includes
+
+# Optional split configuration
+# https://docs.noctalia.dev/umbriel/configuration/#include
+[include]
+files = [
+  "/usr/share/umbriel/effects/border/pulse/effect.toml",
+  "/usr/share/umbriel/effects/animation/reveal/effect.toml",
+  "/usr/share/umbriel/effects/screen/vignette/effect.toml",
+  "/usr/share/umbriel/effects/window/scanlines/effect.toml",
+  "/usr/share/umbriel/effects/animation/squash/effect.toml",
+  "/usr/share/umbriel/effects/animation/workspace_wipe/effect.toml",
+  "/usr/share/umbriel/effects/border/audio/effect.toml",
+  "/usr/share/umbriel/effects/cursor/trail/effect.toml",
+  "/usr/share/umbriel/effects/cursor/glow/effect.toml",
+  "/usr/share/umbriel/effects/cursor/trail-path/effect.toml",
+"input.toml",
+"environment.toml",
+"keybind.toml",
+"layout.toml",
+"windowrule.toml",
+"overview.toml",
+"animation.toml",
+"monitor.toml",
+"layerrules.toml",
+"effects.toml",
+"appearnce.toml",
+]
+[include.optional]
+files = ["noctalia.toml"]
+
+# ==============================================================================
+# General
+
+# Optional session examples. XWayland support is enabled by default.
+# https://docs.noctalia.dev/umbriel/configuration/#general
+# [general]
+# autostart = ["noctalia", "kitty"]
+# xwayland = false
+# Sharp X11 apps and games on scaled outputs; they see physical resolutions.
+#  xwayland_native_resolution = true
+# Umbriel announces the X11 interface scale and cursor theme through XSETTINGS.
+# Turn this off to run your own manager, such as xsettingsd.
+# xwayland_xsettings = false
+
+[general]
+autostart = ["noctalia -d", "wl-clip-persist --clipboard both &", "gsettings set org.gnome.desktop.session session-name umbriel &", "dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP", "systemctl --user import-environment WAYLAND_DISPLAY XDG_CURRENT_DESKTOP", "gnome-keyring-daemon --login -d --unlock --components=ssh,secrets,pkcs11 &", "/usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1 &"]                                  # Commands run once when the session starts
+mod_key = "ALT"                                 # Force Super instead of nested-session Alt
+xwayland = true                                 # Requires xwayland-satellite; restart to change
+show_cheatsheet = true                          # Show the keybind overlay on startup
+focus_on_activate = true                        # Do not let unsolicited requests steal focus
+honor_restored_maximize = false                 # Honor restored maximized state
+xwayland_native_resolution = true
+
+# ==============================================================================
+# Lid events
+
+# Remove the laptop panel from the desktop while the lid is closed, then
+# restore it when the lid opens. Replace eDP-1 with the name from
+# `umbriel outputs`.
+# https://docs.noctalia.dev/umbriel/configuration/#events
+# [events]
+# lid_close = "umbriel msg output-disable:eDP-1"
+# lid_open = "umbriel msg output-enable:eDP-1"
+
+# ==============================================================================
+# Screencast
+
+# By default, the first target-changing action during an active share asks for
+# confirmation. Disable that protection only if immediate keybind changes are
+# preferred.
+# https://docs.noctalia.dev/umbriel/configuration/#screencast
+# [screencast]
+# disable_dynamic_confirmation = true
+
+# ==============================================================================
+
+# ==============================================================================
+# Appearance
+# Blur uses a smaller radius than the built-in default.
+# https://docs.noctalia.dev/umbriel/appearance/
+[appearance.blur]
+radius = 3
+
+# Choose the background color shown if the lock screen takes too long to appear.
+# [colors]
+# backdrop = "#000000FF"
+
+
+# ─────────────────────── Security Context Rules ─────────────────────────────
+# Sandboxed clients receive a restricted Wayland global set. Grant extra
+# globals only to a narrowly matched application that genuinely needs them.
+# Documentation: https://docs.noctalia.dev/umbriel/security/#per-application-grants
+# ────────────────────────────────────────────────────────────────────────────
+
+# Grant a sandboxed clipboard manager both data-control protocol variants.
+# Uncomment the complete block and replace the example application ID.
+
+# [[security_context_rule]]
+# match.sandbox_engine = 'org\.flatpak'
+# match.app_id = 'org\.example\.ClipboardManager'
+# allow_globals = ["ext_data_control_manager_v1", "zwlr_data_control_manager_v1"]
+
+
+

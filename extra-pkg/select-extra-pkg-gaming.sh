@@ -24,6 +24,7 @@ OPTIONS=(
     "ProtonPlus - Install and manage custom Proton and wine versions for Steam, Lutris and Heroic"
     "Gamemode - Run games with Gamemode to improve performance"
     "Gamescope - SteamOS compositor for gaming sessions"
+    "Goverlay - Gaming overlay for Steam, Lutris, Heroic and more"
     ""
     'Exit'
 )
@@ -61,7 +62,7 @@ OPTIONS=(
                 "Gamemode - Run games with Gamemode to improve performance")   echo "PKG-G6=gamemode" >> "${OUTPUT_FILE}"  ;;
                 "Gamescope - SteamOS compositor for gaming sessions")   echo "PKG-G7=gamescope" >> "${OUTPUT_FILE}"  ;;
                 "Gamescope Session - ChimeraOS port of SteamOS gaming session")   echo "PKG-G8=gamescope-session-steam" >> "${OUTPUT_FILE}"  ;;
-
+                "Goverlay - Gaming overlay for Steam, Lutris, Heroic and more")   echo "PKG-G9=goverlay" >> "${OUTPUT_FILE}"  ;;
             esac
         done <<< "$CHOICE_FILTERED"
         break
