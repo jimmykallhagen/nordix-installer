@@ -8,19 +8,31 @@ echo -ne "\e]10;${G_BASE_COLOR}\a"
 
 BACKTITLE="Nordix Installer"
 
+handle_interrupt() {
+    dialog --clear \
+        --backtitle "$BACKTITLE" \
+        --title "Cannot Exit" \
+        --msgbox "You cant exit here" 5 25
+    exec "${BASH_SOURCE[0]}" "$@"
+}
+trap handle_interrupt INT TERM QUIT HUP
+
 OPTIONS=(
-    'Docker - ZFS drivers'
-    'SSH -  OpenSSH remote login client'
-    'VM - Run virtual machines with Qemu, KVM, libvirt and Virt-Manager'
-    'Ollama - Host local ai, simpel terminal ui, good support to supply local ai models to other ai tools'
-    'LmStudio - Host local ai, full GUI from start, can be used to supply local ai models to other ai tools'
-    'Unsloth - Fast inference and fine-tuning for transformer models, with webui'
-    'Cockpit - Web-based server management'
+    'Docker - ZFS drivers.'
+    'SSH -  OpenSSH remote login client.'
+    'VM - Run virtual machines with Qemu, KVM, libvirt and Virt-Manager.'
+    'Ollama - Host local ai, simpel terminal ui, good support to supply local ai models to other ai tools.'
+    'LmStudio - Host local ai, full GUI from start, can be used to supply local ai models to other ai tools.'
+    'Unsloth - Chat, create music, video, images and full development tooling with WebUI for local ai development.'
+    'Cockpit - Web-based server management.'
     'Exit'
 )
 
 while true; do
-    dialog --clear --backtitle "$BACKTITLE" --title "Extra Packages" --msgbox "Extra package selection: Homelab" 6 50
+    dialog --clear \
+        --backtitle "$BACKTITLE" \
+        --title "Extra Packages" \
+        --msgbox "Extra package selection: Homelab" 5 40
 
     # Build checklist args
     menu_args=()
@@ -31,11 +43,17 @@ while true; do
         ((i++))
     done
 
-    selected_tags=$(dialog --clear --backtitle "$BACKTITLE" --title "Extra Packages" \
-        --stdout --checklist "Press SPACE to choose - Enter to confirm" 20 100 8 "${menu_args[@]}")
+    selected_tags=$(dialog --clear \
+        --backtitle "$BACKTITLE" \
+        --title "Extra Packages" \
+        --stdout --checklist "Local AI, SSH, Virtualization, WebUI" 15 122 8 "${menu_args[@]}")
+
     ret=$?
     if [ $ret -ne 0 ]; then
-        dialog --clear --backtitle "$BACKTITLE" --title "Info" --msgbox "Maybe next time" 6 40
+        dialog --clear \
+            --backtitle "$BACKTITLE" \
+            --title "Info" \
+            --msgbox "Maybe next time" 5 40
         break
     fi
 
@@ -60,23 +78,26 @@ while true; do
     done
 
     if $exit_selected || [ ${#selected_opts[@]} -eq 0 ]; then
-        dialog --clear --backtitle "$BACKTITLE" --title "Info" --msgbox "Maybe next time" 6 40
+        dialog --clear \
+            --backtitle "$BACKTITLE" \
+            --title "Info" \
+            --msgbox "Maybe next time" 5 40
         break
     fi
 
     # Confirm
-    confirm_text=$(printf "%s\n" "${selected_opts[@]}" | head -c 200)
+    confirm_text=$(printf "%s\n" "${selected_opts[@]}")
     if dialog --clear --backtitle "$BACKTITLE" --title "Confirm" --yesno "Confirm package(s):\n$confirm_text" 15 70 2>&1 >/dev/tty; then
         > "${OUTPUT_FILE}"
         for line in "${selected_opts[@]}"; do
             case "$line" in
-                "Docker - ZFS drivers")   echo "PKG-H1=docker" >> "${OUTPUT_FILE}" ;;
-                "SSH -  OpenSSH remote login client")   echo "PKG-H2=ssh" >> "${OUTPUT_FILE}" ;;
-                "VM - Run virtual machines with Qemu, KVM, libvirt and Virt-Manager") echo "PKG-H3=VM" >> "${OUTPUT_FILE}" ;;
-                "Ollama - Host local ai, simpel terminal ui, good support to supply local ai models to other ai tools") echo "PKG-H4=ollama" >> "${OUTPUT_FILE}" ;;
-                "LmStudio - Host local ai, full GUI from start, can be used to supply local ai models to other ai tools") echo "PKG-H5=lmstudio" >> "${OUTPUT_FILE}" ;;
-                "Unsloth - Fast inference and fine-tuning for transformer models, with webui") echo "PKG-H6=unsloth" >> "${OUTPUT_FILE}" ;;
-                "Cockpit - Web-based server management") echo "PKG-H7=cockpit" >> "${OUTPUT_FILE}" ;;
+                "Docker - ZFS drivers.")   echo "PKG-H1=docker" >> "${OUTPUT_FILE}" ;;
+                "SSH -  OpenSSH remote login client.")   echo "PKG-H2=ssh" >> "${OUTPUT_FILE}" ;;
+                "VM - Run virtual machines with Qemu, KVM, libvirt and Virt-Manager.") echo "PKG-H3=VM" >> "${OUTPUT_FILE}" ;;
+                "Ollama - Host local ai, simpel terminal ui, good support to supply local ai models to other ai tools.") echo "PKG-H4=ollama" >> "${OUTPUT_FILE}" ;;
+                "LmStudio - Host local ai, full GUI from start, can be used to supply local ai models to other ai tools.") echo "PKG-H5=lmstudio" >> "${OUTPUT_FILE}" ;;
+                "Unsloth - Chat, create music, video, images and full development tooling with WebUI for local ai development.") echo "PKG-H6=unsloth" >> "${OUTPUT_FILE}" ;;
+                "Cockpit - Web-based server management.") echo "PKG-H7=cockpit" >> "${OUTPUT_FILE}" ;;
             esac
         done
         break
