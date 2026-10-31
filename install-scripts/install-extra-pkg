@@ -1,0 +1,142 @@
+##################################################################################
+# Extra packages for the content creator
+##################################################################################
+# check if the user have choosen some extra creative packages
+if -f $SCRIPT_DIR/config/extra-pkg-creative.conf ; then
+
+  # read the user's choices
+  creative=$(cat $SCRIPT_DIR/config/extra-pkg-creative.conf)
+
+  # add wlrobs-hg if obs-studio is selected - needed for wlroots compositors
+  if [[ " ${creative[*]} " == *" obs-studio "* ]]; then
+    creative+=("wlrobs-hg")
+  fi
+
+  # install the selected packages
+  for c_pkg in ${creative[*]}; do
+    pacstrap /mnt $c_pkg > /dev/null 2>&1 || true
+  done
+
+fi
+
+##################################################################################
+# Extra packages for the development
+##################################################################################
+# check if the user have choosen some extra development packages
+if -f $SCRIPT_DIR/config/extra-pkg-dev.conf ; then
+
+  # read the user's choices
+  development=$(cat $SCRIPT_DIR/config/extra-pkg-dev.conf)
+
+  # install the selected packages
+  for d_pkg in ${development[*]}; do
+    pacstrap /mnt $d_pkg > /dev/null 2>&1 || true
+  done
+fi
+
+##################################################################################
+# Extra packages for the gamers
+##################################################################################
+# Check if the user have choosen some extra gaming packages
+if -f $SCRIPT_DIR/config/extra-pkg-gaming.conf ; then
+  gaming=$(cat $SCRIPT_DIR/config/extra-pkg-gaming.conf)
+
+# lutris-gamepad-ui-git needs to be installed separately from AUR
+if [[ " ${gaming[*]} " == *" lutris-gamepad-ui-git "* ]]; then
+
+  # Create a new array without lutris-gamepad-ui-git
+    new_gaming=()
+    for pkg in "${gaming[@]}"; do
+        if [[ $pkg != lutris-gamepad-ui-git ]]; then
+            new_gaming+=("$pkg")
+        fi
+    done
+
+    # update the gaming array
+    gaming=("${new_gaming[@]}")
+
+    # Install lutris-gamepad-ui-git
+    pacstrap /mnt lutris-gamepad-ui-git > /dev/null 2>&1 || true
+fi
+
+##################################################################################
+# Extra packages for the homelab
+##################################################################################
+# Check if the user have choosen some extra homelab packages
+if -f $SCRIPT_DIR/config/extra-pkg-homelab.conf ; then
+  homelab=$(cat $SCRIPT_DIR/config/extra-pkg-homelab.conf)
+
+  if [[ $homelab == *"ollama"* ]]; then
+    # Create a new array without ollama
+    ollama_pkg=()
+    for h_pkg in "${homelab[@]}"; do
+      if [[ $h_pkg != ollama ]]; then
+        ollama_pkg+=("$h_pkg")
+      fi
+    done
+
+    # update the homelab array
+    homelab=("${new_homelab[@]}")
+
+    # install ollama
+    arch-chroot /mnt curl -fsSL https://ollama.com/install.sh | sh > /dev/null 2>&1 || true
+  fi
+
+ # Activate the ollama service
+    systemctl enable ollama.services > /dev/null 2>&1 || true
+    useradd -aG ollama $_USER_NAME > /dev/null 2>&1 || true
+  fi
+
+  if [[ $homelab == *"unsloth"* ]]; then
+    # Create a new array without unsloth
+    unsloth_pkg=()
+    for h_pkg in "${homelab[@]}"; do
+      if [[ $h_pkg != unsloth ]]; then
+        unsloth_pkg+=("$h_pkg")
+      fi
+    done
+
+    # update the homelab array
+    homelab=("${unsloth_pkg[@]}")
+
+    # install unsloth studio
+    arch-chroot /mnt curl -fsSL https://unsloth.ai/install.sh | sh > /dev/null 2>&1 || true
+  fi
+
+  # install the selected packages
+  for h_pkg in ${homelab[*]}; do
+    pacstrap /mnt $h_pkg > /dev/null 2>&1 || true
+  done
+fi
+
+# Activate Docker services
+if [[ $homelab == *"docker"* ]]; then
+  pacstrap /mnt docker > /dev/null 2>&1 || true
+  systemctl enable docker.service > /dev/null 2>&1 || true
+  useradd -aG docker $_USER_NAME > /dev/null 2>&1 || true
+fi
+
+# Activate ssh services
+if [[ $homelab == *"openssh"* ]]; then
+  pacstrap /mnt openssh > /dev/null 2>&1 || true
+  systemctl enable sshd.service > /dev/null 2>&1 || true
+  ufw allow 22/tcp > /dev/null 2>&1 || true
+fi
+
+
+##################################################################################
+# Extra packages utils
+##################################################################################
+# Check if the extra-pkg-office-utils.conf file exists
+if -f $SCRIPT_DIR/config/extra-pkg-office.conf ; then
+  homelab=$(cat $SCRIPT_DIR/config/extra-pkg-office.conf)
+
+  # Install the selected packages
+  for h_pkg in ${homelab[*]}; do
+    pacstrap /mnt $h_pkg > /dev/null 2>&1 || true
+  done
+fi
+
+##################################################################################
+# End of the story of extra packages
+##################################################################################

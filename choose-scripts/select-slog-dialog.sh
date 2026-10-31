@@ -6,20 +6,24 @@ MASTER_LIST="${CONFIG_DIR}/device_list_l2arc.conf"
 OUTPUT_FILE="${CONFIG_DIR}/selected-slog-drives.conf"
 OUTPUT_LIST_FILE="${CONFIG_DIR}/device_list_tank.conf"
 OUTPUT_FILE_SLOG_LAYOUT="${CONFIG_DIR}/slog-layout.conf"
-
-source "${SCRIPT_DIR}/../gum-lib/gum.conf"
 source "${MASTER_LIST}"
 
 clear
-echo -ne "\e]10;${G_BASE_COLOR}\a"
 
 BACKTITLE="Nordix Installer"
 
-dialog --clear --backtitle "$BACKTITLE" --title "SLOG" --msgbox "ZFS SLOG - Separate Intent Log. Fast NVMe/SSD  ZFS ZIL / synkrona writes -  Great for performance on HDD's" 10 70
+dialog --clear \
+    --backtitle "$BACKTITLE" \
+    --title "SLOG" \
+    --msgbox "ZFS SLOG - Separate Intent Log. Fast NVMe/SSD  ZFS ZIL / synkrona writes -  Great for performance on HDD's" 5 80
 
-if dialog --clear --backtitle "$BACKTITLE" --title "SLOG" --yesno "Do you want to add a SLOG Vdev to your zpool?" 10 60 2>&1 >/dev/tty; then
+if dialog --clear \
+    --backtitle "$BACKTITLE" \
+    --colors --color-mode 2 \
+    --title "SLOG" \
+    --yes-label "IWANT SLOG" \
+    --yesno "Do you want to add a SLOG Vdev to your zpool?" 10 60 2>&1 >/dev/tty; then
 
-    sleep 1
 
     OPTIONS=(
     "SLOG - Single    : 1 drive, no redundancy"
@@ -28,13 +32,10 @@ if dialog --clear --backtitle "$BACKTITLE" --title "SLOG" --yesno "Do you want t
     "Exit without SLOG"
     )
 
-    dialog --clear --backtitle "$BACKTITLE" --title "SLOG" --msgbox "Starting SLOG layout selection" 6 50
-    sleep 1
 
     _SLOG=""
 
     while true; do
-        dialog --clear --backtitle "$BACKTITLE" --title "SLOG" --msgbox "Choose Layout For SLOG" 6 50
 
         menu_args=()
         i=1
@@ -43,21 +44,22 @@ if dialog --clear --backtitle "$BACKTITLE" --title "SLOG" --yesno "Do you want t
             ((i++))
         done
 
-        choice_idx=$(dialog --clear --backtitle "$BACKTITLE" --title "SLOG Layout" \
-            --stdout --menu "Press Enter to choose layout" 15 70 4 "${menu_args[@]}")
+        choice_idx=$(dialog --clear \
+            --backtitle "$BACKTITLE" \
+            --colors --color-mode 2 \
+            --title "SLOG" \
+            --stdout --menu "Choose a layout:" 15 70 4 "${menu_args[@]}")
         ret=$?
         if [ $ret -ne 0 ] || [ -z "$choice_idx" ]; then
-            dialog --clear --backtitle "$BACKTITLE" --title "Error" --msgbox "Please select a layout!" 6 50
-            continue
-        fi
-
-        _SLOG_TEXT="${OPTIONS[$((choice_idx-1))]}"
-
-        if [[ "$_SLOG_TEXT" == "Exit without SLOG" ]]; then
-            dialog --clear --backtitle "$BACKTITLE" --title "Exit" --msgbox "Leaving SLOG..." 6 50
-            dialog --clear --backtitle "$BACKTITLE" --title "Exit" --msgbox "Maybe next time." 6 50
+            dialog --clear \
+                --backtitle "$BACKTITLE" \
+                --colors --color-mode 2 \
+                --title "Exit" \
+                cp "$MASTER_LIST" "$OUTPUT_LIST_FILE" \
+                --msgbox "Maybe next time." 6 50
             exit 1
         fi
+        _SLOG_TEXT="${OPTIONS[$((choice_idx-1))]}"
 
         case "$_SLOG_TEXT" in
             "SLOG - Single    : 1 drive, no redundancy") _SLOG="slog-single" ;;
@@ -65,7 +67,11 @@ if dialog --clear --backtitle "$BACKTITLE" --title "SLOG" --yesno "Do you want t
             "SLOG - Mirror    : 2 drives, fault tolerant (Similar to RAID 1)") _SLOG="slog-mirror" ;;
         esac
 
-        if dialog --clear --backtitle "$BACKTITLE" --title "Confirm Layout" --yesno "Confirm SLOG layout: ${_SLOG}?" 10 60 2>&1 >/dev/tty; then
+        if dialog --clear \
+            --backtitle "$BACKTITLE" \
+            --colors --color-mode 2 \
+            --title "Confirm Layout" \
+            --yesno "Confirm SLOG layout: ${_SLOG}?" 10 60 2>&1 >/dev/tty; then
             echo "$_SLOG" > "${OUTPUT_FILE_SLOG_LAYOUT}"
             break
         fi
@@ -102,7 +108,11 @@ if dialog --clear --backtitle "$BACKTITLE" --title "SLOG" --yesno "Do you want t
     selected_ids=""
 
     while true; do
-        dialog --clear --backtitle "$BACKTITLE" --title "Select Drives" --msgbox "$_SLOG (requires $MIN_DRIVES-$MAX_DRIVES drives)" 6 60
+        dialog --clear \
+            --backtitle "$BACKTITLE" \
+            --colors --color-mode 2 \
+            --title "🐧Select Drives🐧" \
+            --msgbox "$_SLOG (requires \Z5$MIN_DRIVES\Z0-\Z1$MAX_DRIVES\Z0 drives)" 6 60
 
         if [[ -z "$selected_ids" ]]; then
             checklist_args=()
@@ -111,11 +121,20 @@ if dialog --clear --backtitle "$BACKTITLE" --title "SLOG" --yesno "Do you want t
                 checklist_args+=("$i" "$disp" "OFF")
                 ((i++))
             done
-            selected_tags=$(dialog --clear --backtitle "$BACKTITLE" --title "Select Drives" \
-                --stdout --checklist "Select drive with SPACE, Enter to confirm" 20 90 10 "${checklist_args[@]}")
+
+            selected_tags=$(dialog --clear \
+                --backtitle "$BACKTITLE" \
+                --colors --color-mode 2 \
+                --title "🐧Select Drives🐧" \
+                --stdout --checklist "Select device[s] for your SLOG (\Z1Internal Log\Zb)" 20 90 10 "${checklist_args[@]}")
             ret=$?
+
             if [ $ret -ne 0 ] || [ -z "$selected_tags" ]; then
-                dialog --clear --backtitle "$BACKTITLE" --title "Error" --msgbox "Please select at least one drive!" 6 50
+                dialog --clear \
+                    --backtitle "$BACKTITLE" \
+                    --colors --color-mode 2 \
+                    --title " \Z1Error\Z0" \
+                    --msgbox "Please select at least one drive!" 6 50
                 continue
             fi
             selected_ids=""
@@ -131,13 +150,11 @@ if dialog --clear --backtitle "$BACKTITLE" --title "SLOG" --yesno "Do you want t
         done <<< "$selected_ids"
 
         if [[ $drive_count -lt $MIN_DRIVES ]]; then
-            dialog --clear --backtitle "$BACKTITLE" --title "Error" --msgbox "Error: $_SLOG layout requires at least $MIN_DRIVES drives (you selected $drive_count)" 7 70
-            selected_ids=""
-            continue
-        fi
-
-        if [[ $MAX_DRIVES != "999" && $drive_count -gt $MAX_DRIVES ]]; then
-            dialog --clear --backtitle "$BACKTITLE" --title "Error" --msgbox "Error: $_SLOG layout allows maximum $MAX_DRIVES drives (you selected $drive_count)" 7 70
+            dialog --clear \
+                --backtitle "$BACKTITLE" \
+                --colors --color-mode 2 \
+                --title " \Z1Error\Z0" \
+                --msgbox "Error: $_SLOG layout requires at least \Z5$MIN_DRIVES \Z0drives (you selected $drive_count)" 7 70
             selected_ids=""
             continue
         fi
@@ -152,9 +169,12 @@ if dialog --clear --backtitle "$BACKTITLE" --title "SLOG" --yesno "Do you want t
                 fi
             done
         done <<< "$selected_ids"
-        confirm_text=$(printf "%s" "$confirm_lines" | head -c 200)
+        confirm_text=$(printf "%s" "$confirm_lines")
 
-        if dialog --clear --backtitle "$BACKTITLE" --title "Confirm Drives" --yesno "Confirm selected $drive_count drives:\n$confirm_text" 15 70 2>&1 >/dev/tty; then
+        if dialog --clear \
+            --backtitle "$BACKTITLE" \
+            --title "🐧Confirm Drives🐧" \
+            --yesno "Confirm selected $drive_count drives:\n$confirm_text" 15 70 2>&1 >/dev/tty; then
             break
         fi
         selected_ids=""

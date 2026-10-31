@@ -1,9 +1,8 @@
 
-advance_zfs_info() {
-gum_pager "
+
 #________________________________________________________________________#
 YOU PROBABLY GONNA NEED TO MAKE PARTITIONS OF A DEDICATETED EXTRA VDEV
-
+FOR L2ARC OR SLOG
 I HAVENT BUILT SUPPORT FOR THAT YET
 YOU CAN ADD EXTRA VDEVS
 AFTER THE INSTALLATION IS COMPLETE
@@ -47,7 +46,8 @@ This allows you to utilize different generations of NVMe in your Zpool:
 
 The same applies if you have one Gen5 and several Gen4 NVMe.
 
-Dont forget to set the special vdev recordsize to at least 128K (preferably up to 1MB) to fully utilize the fast drive.
+Dont forget to set the special vdev recordsize to at least 128K
+(preferably up to 1MB) to fully utilize the fast drive.
 
 ------------------------------------------------------------------------------
 
@@ -86,15 +86,14 @@ NVMe pool (for system/VMs):
 The NVMe pool hosts ZVOLs that act like real devices:
 - SLOG: 40GB Zvol
 - L2ARC: 200GB Zvol
-- Special vdev: remainder of drives (128K-1MB recordsize)
+- Special vdev
+
+OBS:
+- You cant take away the ZVOL if it is a special vdev
+- You cant have a boot environment on a zpool with a zvol from an other zpool
 
 Note: This setup requires post-install configuration.
 Guide for ZVOL setup can be found at:
 https://github.com/jimmykallhagen/nordix-ZGuide_guide-to-zfs
 
 ------------------------------------------------------------------------------
-##===================##
- # Press ESC to exit #
-##===================##
-"
-}

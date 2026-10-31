@@ -1,0 +1,20 @@
+#==================================================================================================#
+#                              Nordix Package Selection Help                             #
+#==================================================================================================#
+
+Nordix installer package selection.
+
+- Use SPACE to toggle packages on/off in the list.
+- Use ENTER to confirm your selection.
+
+Choosing Exit will skip the package selection.
+
+Available package categories:
+
+- Creative: content creation tools (Gimp, Blender, Krita, Inkscape, Shotcut, OBS, GPU Screen Recorder, Upscayl).
+- Development: code editors and developer tools (Zed, Emacs, Neovim, Helix, Sublime).
+- Gaming: game launchers and gaming utilities (Steam, Gamescope, Lutris, Heroic, ProtonPlus, Goverlay, Vesktop).
+- Homelab: self hosted AI, SSH, virtualization and web based services (Docker, Ollama, LmStudio, Unsloth, Cockpit).
+- Office & Utilities: office, archive and torrent tools (LibreOffice, PeaZip, Qbittorrent).
+
+Press OK to confirm your package selection.

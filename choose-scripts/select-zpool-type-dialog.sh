@@ -2,46 +2,35 @@
 # ZFS Script 2 - Dialog version
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 CONFIG_DIR="${SCRIPT_DIR}/../config"
-source "$SCRIPT_DIR/../gum-lib/gum.conf"
-ZFS_INFO_ADVANCED="${SCRIPT_DIR}/../info/zfs-info-advanced"
-ZFS_INFO_VDEV="${SCRIPT_DIR}/../info/zfs-info-vdev"
 MASTER_LIST="${CONFIG_DIR}/device-list-vdev.conf"
+ZFS_VDEV_INFO="${SCRIPT_DIR}/../info/zfs-info-vdev"
+
 source "$MASTER_LIST"
 
 unset ZPOOL CHOICE
 
 clear
-echo -ne "\e]10;${G_BASE_COLOR}\a"
 
 
 handle_interrupt() {
     dialog --clear \
         --backtitle "$BACKTITLE" \
-        --title "Cannot Exit" \
-        --msgbox "You cant exit here" 5 25
+        --colors --color-mode 2 \
+        --title "\ZbCannot Exit" \
+        --msgbox "\Z1You cant exit here" 5 25
     exec "${BASH_SOURCE[0]}" "$@"
 }
 trap handle_interrupt INT TERM QUIT HUP
 
 BACKTITLE="Nordix Installer"
 
-handle_interrupt() {
-    dialog --clear \
-        --backtitle "$BACKTITLE" \
-        --title "Cannot Exit" \
-        --msgbox "You cant exit here" 5 25
-    exec "${BASH_SOURCE[0]}" "$@"
-}
-trap handle_interrupt INT TERM QUIT HUP
 
 
 OPTIONS=(
-"Nordix ZFS Help"
-""
-"ZFS Single           : 1 drive, no redundancy"
+"ZFS Single           : 1  drive, no redundancy"
 "ZFS Stripe           : 2+ drives, maximum speed and storage space, no redundancy (Similar to RAID0)"
-"ZFS Mirror           : 2 drives, fault tolerant (Similar to RAID 1)"
-"ZFS Stripe + Mirror  : 4+ drives, fast & safe (Similar to RAID 10)"
+"ZFS Mirror           : 2  drives, fault tolerant (Similar to RAID 1)"
+"ZFS Striped_Mirror   : 4  drives, fast & safe (Similar to RAID 10)"
 "ZFS RAIDZ            : 3+ drives, balanced safety/space (Similar to RAID 5)"
 "ZFS RAIDZ2           : 5+ drives, balanced safety/space (Similar to RAID 6)"
 "ZFS RAIDZ3           : 7+ drives, balanced safety/space"
@@ -51,6 +40,7 @@ while true; do
 
     dialog --clear \
         --backtitle "$BACKTITLE" \
+        --colors --color-mode 2 \
         --title "Zpool Layouts" \
         --msgbox "Choose Zpool Layouts" 5 25
 
@@ -59,23 +49,38 @@ while true; do
     i=1
     for opt in "${OPTIONS[@]}"; do
         [[ -z "$opt" ]] && continue
-        menu_args+=("$i" "$opt")
+        menu_args+=("$i" "\Zb\Z1$opt")
         ((i++))
     done
 
     CHOICE=$(dialog --clear \
         --backtitle "$BACKTITLE" \
-        --title "Zpool Layouts" \
-        --no-cancel \
-        --stdout --menu "Choose wisely" 0 90 8 "${menu_args[@]}")
+        --title "\Zb\Z0Zpool Layouts" \
+        --no-cancel --colors --color-mode 2 \
+        --help-button \
+        --stdout --menu "\Zb\Z4Choose wisely" 0 90 9 "${menu_args[@]}")
     ret=$?
+
+    if [ $ret -eq 2 ]; then
+        dialog --clear \
+            --backtitle "$BACKTITLE" \
+            --title "Help" \
+            --colors \
+            --color-mode 2 \
+            --textbox "$ZFS_VDEV_INFO" 90 110
+
+        continue
+    fi
+
     if [ $ret -ne 0 ] || [ -z "$CHOICE" ]; then
         dialog --clear \
             --backtitle "$BACKTITLE" \
-            --title "Error" \
+            --title "\Zb\Z1Error" \
+            --colors --color-mode 2 \
             --msgbox "Please select a layout!" 6 50
         continue
     fi
+
 
     # Map menu index back to actual option text
     # Rebuild array without empties to find text
@@ -89,27 +94,31 @@ while true; do
         fi
     done
 
-    if [[ "$CHOICE_TEXT" == "Nordix ZFS Help" ]]; then
-        dialog --clear \
-            --backtitle "$BACKTITLE" \
-            --title "Help" \
-            --textbox "$ZFS_INFO_VDEV" 100 110
-        continue
-    fi
+
 
     case "$CHOICE_TEXT" in
-        "ZFS Single           : 1 drive, no redundancy") ZPOOL="single" ;;
+        "ZFS Single           : 1  drive, no redundancy") ZPOOL="single" ;;
         "ZFS Stripe           : 2+ drives, maximum speed and storage space, no redundancy (Similar to RAID0)") ZPOOL="stripe" ;;
-        "ZFS Mirror           : 2 drives, fault tolerant (Similar to RAID 1)") ZPOOL="zfs-mirror" ;;
-        "ZFS Stripe + Mirror  : 4+ drives, fast & safe (Similar to RAID 10)") ZPOOL="stripe-mirror" ;;
+        "ZFS Mirror           : 2  drives, fault tolerant (Similar to RAID 1)") ZPOOL="zfs-mirror" ;;
+        "ZFS Striped-Mirror   : 4  drives, fast & safe (Similar to RAID 10)") ZPOOL="stripe-mirror" ;;
         "ZFS RAIDZ            : 3+ drives, balanced safety/space (Similar to RAID 5)") ZPOOL="zfs-raidz" ;;
         "ZFS RAIDZ2           : 5+ drives, balanced safety/space (Similar to RAID 6)") ZPOOL="zfs-raidz2" ;;
         "ZFS RAIDZ3           : 7+ drives, balanced safety/space") ZPOOL="zfs-raidz3" ;;
     esac
-
+    if [[ "$CHOICE_TEXT" == "---" ]]; then
+        dialog --clear \
+            --backtitle "$BACKTITLE" \
+            --colors --color-mode 2 \
+            --title "\Zb\Z1Error" \
+            --msgbox "Please select a layout!" 6 50
+        continue
+    fi
+    IWANT=$(echo $CHOICE_TEXT | awk '{print $2}')
     if dialog --clear \
         --backtitle "$BACKTITLE" \
-        --title "Confirm Layout" \
+        --colors --color-mode 2 \
+        --title "\ZbConfirm Layout" \
+        --yes-label "I want \Z4$IWANT" \
         --yesno "Confirm zpool vdev Layout:
         ${CHOICE_TEXT}?" 6 100 2>&1 >/dev/tty; then
         break
@@ -120,7 +129,7 @@ sed -i '/^ZPOOL=/d' "${CONFIG_DIR}/selected-zpool-layout.conf"
 echo "ZPOOL=\"$ZPOOL\"" >> "${CONFIG_DIR}/selected-zpool-layout.conf"
 
 
-##---------------------------------------------------------------------------##
+##---------------------DUBBLE-SCRIPT-IT-IS---------------------------##
 ######################################
 # Chose devices/drives for the zpool #
 ######################################
@@ -146,13 +155,13 @@ done
 
 get_min_max_drives() {
     case "$ZPOOL" in
-        "single")        echo "1 1" ;;
-        "stripe")        echo "2 999" ;;
-        "zfs-mirror")    echo "2 2" ;;
-        "stripe-mirror") echo "4 4" ;;
-        "zfs-raidz")     echo "3 999" ;;
-        "zfs-raidz2")    echo "5 999" ;;
-        "zfs-raidz3")    echo "7 999" ;;
+        "single")           echo "1 1" ;;
+        "stripe")           echo "2 999" ;;
+        "zfs-mirror")       echo "2 2" ;;
+        "striped-mirror")   echo "4 4" ;;
+        "zfs-raidz")        echo "3 999" ;;
+        "zfs-raidz2")       echo "5 999" ;;
+        "zfs-raidz3")       echo "7 999" ;;
     esac
 }
 
@@ -163,20 +172,22 @@ selected_ids=""
 while true; do
     dialog --clear \
         --backtitle "$BACKTITLE" \
-        --title "Select Drives" \
-        --msgbox "$ZPOOL (requires $MIN_DRIVES-$MAX_DRIVES drives)" 5 39
+        --title "Select Devices" \
+        --colors --color-mode 2 \
+        --msgbox "\Zb$ZPOOL (requires \Zb\Z4$MIN_DRIVES\Z0-\Zb\Z1$MAX_DRIVES \Z0drives)" 5 39
 
     if [[ -z "$selected_ids" ]]; then
         checklist_args=()
         i=1
         for disp in "${drive_displays[@]}"; do
-            checklist_args+=("$i" "$disp" "OFF")
+            checklist_args+=("$i" "\Zb\Z1$disp" "OFF")
             ((i++))
         done
         selected_tags=$(dialog --clear \
             --backtitle "$BACKTITLE" \
-            --title "Select Drives" \
-            --stdout --checklist "Select device/devices for your system Zpool" 20 80 10 "${checklist_args[@]}")
+            --title "Select Devices" \
+            --colors --color-mode 2 \
+            --stdout --checklist "\Z4Select device[s] for your root Zpool" 20 80 10 "${checklist_args[@]}")
         ret=$?
         if [ $ret -ne 0 ] || [ -z "$selected_tags" ]; then
             dialog --clear \
@@ -202,8 +213,9 @@ while true; do
     if [[ $drive_count -lt $MIN_DRIVES ]]; then
         dialog --clear \
             --backtitle "$BACKTITLE" \
-            --title "Error" \
-            --msgbox "Error: $ZPOOL layout requires at least $MIN_DRIVES drives (you selected $drive_count)" 7 70
+            --title "\Zb\Z1Error" \
+            --colors --color-mode 2 \
+            --msgbox "\Zb\Z1Error:\Z0 $ZPOOL layout requires at least \Z4$MIN_DRIVES\Z0 drives (you selected $drive_count)" 7 70
         selected_ids=""
         continue
     fi
@@ -211,8 +223,9 @@ while true; do
     if [[ $MAX_DRIVES != "999" && $drive_count -gt $MAX_DRIVES ]]; then
         dialog --clear \
             --backtitle "$BACKTITLE" \
-            --title "Error" \
-            --msgbox "Error: $ZPOOL layout allows maximum $MAX_DRIVES drives (you selected $drive_count)" 7 70
+            --title "\Zb\Z1Error" \
+            --colors --color-mode 2 \
+            --msgbox "\Zb\Z1Error:\Z0 $ZPOOL layout allows maximum \Z4$MAX_DRIVES\Z0 drives (you selected $drive_count)" 7 70
         selected_ids=""
         continue
     fi
@@ -229,11 +242,11 @@ while true; do
             fi
         done
     done <<< "$selected_ids"
-    confirm_text=$(printf "%s" "$confirm_lines" | head -c 200)
+    confirm_text=$(printf "%s" "$confirm_lines")
     if dialog --clear \
         --backtitle "$BACKTITLE" \
-        --title "Confirm Drives" \
-        --yesno "Confirm selected $drive_count drives:\n$confirm_text" 0 0 2>&1 >/dev/tty; then
+        --title "Confirm Devices" \
+        --yesno "Confirm selected $drive_count devices:\n$confirm_text" 0 0 2>&1 >/dev/tty; then
         break
     fi
     selected_ids=""

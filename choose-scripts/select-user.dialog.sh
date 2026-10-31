@@ -5,6 +5,19 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 OUTPUT_FILE="$SCRIPT_DIR/../config/user.conf"
 unset USER_NAME USER_PASSWD CTRL_USER_PASSWD
 
+# Cant run Ctrl + C to exit
+handle_interrupt() {
+    dialog --clear \
+        --backtitle "$BACKTITLE" \
+        --colors --color-mode 2 \
+        --title "Cannot Exit" \
+        --msgbox "\Z1You cant exit here" 5 25
+    exec "${BASH_SOURCE[0]}" "$@"
+}
+trap handle_interrupt INT TERM QUIT HUP
+
+BACKTITLE="Nordix Installer"
+
 # Outer loop: restarts from username if the user cancels during password.
 while true; do
 
@@ -12,7 +25,7 @@ while true; do
 
        while true; do
         USER_NAME=$(dialog --clear \
-            --backtitle "Min Distro Installer" \
+            --backtitle "$BACKTITLE" \
             --title "Create User Account" \
             --inputbox "Enter username (lowercase, no spaces):" 8 60 "nordix" \
             2>&1 > /dev/tty)
@@ -31,22 +44,25 @@ while true; do
             continue
         fi
 
-        if dialog --clear --title "Confirm username" \
-            --yesno "Are you sure about this username?\n\n$USER_NAME"  5 50  \
-            2>&1 > /dev/tty; then
-            :
+        if dialog --clear \
+            --title "Confirm username" \
+            --yesno "Are you sure about this username?\n\n$USER_NAME"  5 50; then  2>&1 > /dev/tty; then
+
         else
             continue
         fi
 
 
-    # A little personality, same as the gum version.
+   # A little personality, same as the gum version.
     if [ "$USER_NAME" != "nordix" ]; then
-        dialog --clear --title "Noted" \
-            --msgbox "Well, if you really think it turned out well, that's your choice..."  5 50 
+        dialog --clear \
+            --title "Noted" \
+            --colors --color-mode 2 \
+            --msgbox "Well, if you really think it turned out well, \Zbthat's your choice..."  5 50
     else
-        dialog --clear --title "Excellent" \
-            --msgbox "Exquisite choice of username."  5 50 
+        dialog --clear \
+            --title "Nice!" \
+            --msgbox "Exquisite choice of username."  5 50
     fi
 
         # Persist the username.

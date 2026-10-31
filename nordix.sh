@@ -4,34 +4,39 @@
 #
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-source "${SCRIPT_DIR}/info/nordix-welcome"
-source "${SCRIPT_DIR}/gum-lib/gum.conf"
+WELCOME="${SCRIPT_DIR}/info/nordix-welcome"
+CONFIRM_ZFS="${SCRIPT_DIR}/info/user-confirm-zfs.sh"
+IMPORT_ZFS_MODULE="${SCRIPT_DIR}/import-zfs-module.sh"
+
 source "${SCRIPT_DIR}/install/zfs-module"
-source "${SCRIPT_DIR}/info/zfs-info"
-source "${SCRIPT_DIR}/info/zfs-info-advanced"
-source "${SCRIPT_DIR}/choose-scripts/select-extra-vdev.sh"
+
+source "${SCRIPT_DIR}/choose-scripts/select-extra-vdev-dialog.sh"
 
 IMPORT_DEVICES="${SCRIPT_DIR}/scripts/import-devices.sh"
 ERASE_DEVICES="${SCRIPT_DIR}/scripts/erase-drive.sh"
 FORMATTING="${SCRIPT_DIR}/scripts/formatting.sh"
-EXTRA_VDEV="${SCRIPT_DIR}/scripts/special-vdev.sh"
 
-BOOT_DEVICE="${SCRIPT_DIR}/choose-scripts/select-boot-drive.sh"
-ZPOOL_LAYOUT="${SCRIPT_DIR}/choose-scripts/select-zpool-type.sh"
-SPECIAL_VDEV="${SCRIPT_DIR}/choose-scripts/select-special.sh"
-SLOG_VDEV="${SCRIPT_DIR}/choose-scripts/select-slog.sh"
-L2ARC_VDEV="${SCRIPT_DIR}/choose-scripts/select-l2arc.sh"
+BOOT_DEVICE="${SCRIPT_DIR}/choose-scripts/select-boot-drive-dialog.sh"
+ZPOOL_LAYOUT="${SCRIPT_DIR}/choose-scripts/select-zpool-type-dialog.sh"
+SPECIAL_VDEV="${SCRIPT_DIR}/choose-scripts/select-special-dialog.sh"
+SLOG_VDEV="${SCRIPT_DIR}/choose-scripts/select-slog-dialog.sh"
+L2ARC_VDEV="${SCRIPT_DIR}/choose-scripts/select-l2arc-dialog.sh"
 
-# Set base color for the terminal
-echo -ne "\e]10;${G_BASE_COLOR}\a"
+# True Solaris fonts - fix for making it readable
+setfont -d --font-height=18 sun12x22
+
+
 clear
+handle_interrupt() {
+dialog --clear \
+    --backtitle "$BACKTITLE" \
+    --title "Cannot Exit" \
+    --msgbox "You cant exit here" 5 25
+    exec "${BASH_SOURCE[0]}" "$@"
+}
 
-######################- PART1 -###########################
-#
-#
-# Zpool creation loop
+trap handle_interrupt INT TERM QUIT HUP
 
-while true; do
 #-----------------------------
 # ZFS Introduction
 #-----------------------------
@@ -39,22 +44,29 @@ while true; do
 # Show intro and give the user the choice of
 # installing ZFS or not
 # source info/nordix-welcome
+while true; do
 
-zfs_intro
-##======================================================##
+    $WELCOME
+    $CONFIRM_ZFS
+
 
 #-----------------------------
 # Install ZFS modules
 #-----------------------------
 ##======================================================##
 # Install ZFS modules
-# the method will be change
-# and i will host the modules myself
-# source install/zfs-module
+#
+$IMPORT_ZFS_MODULE
 
-zfs_module
+done
 ##======================================================##
+#                                                        #
+######################- PART1 -###########################
+#
+#
+# Zpool creation loop
 
+while true; do
 #----------------------------
 # Import Devices
 #----------------------------
@@ -65,19 +77,6 @@ zfs_module
 $IMPORT_DEVICES
 ##======================================================##
 
-#-----------------------------
-# Show Nordix ZFS guide
-#-----------------------------
-##======================================================##
-# Show the Nordix ZFS guide
-# source info/zfs-info
-
-zfs_info
-##======================================================##
-
-# ** IMPORTANT THAT ALL SELECTED DEVICES I IN CORRECT ORDER **
-# ** IMPORTANT THAT ALL SELECTED DEVICES I IN CORRECT ORDER **
-# ** IMPORTANT THAT ALL SELECTED DEVICES I IN CORRECT ORDER **
 
 #----------------------------
 # Select Boot Drive
@@ -99,6 +98,7 @@ $BOOT_DEVICE
 $ZPOOL_LAYOUT
 ##======================================================##
 
+done
 #----------------------------
 # Advanced vdev selection
 #----------------------------
@@ -110,11 +110,11 @@ $ZPOOL_LAYOUT
 # source choose-scripts/select-special.sh
 # source choose-scripts/select-l2arc.sh
 
-clear
-gum_box_sleep "Select extra vdevs for Slog, Special, L2ARC?"
 
-# ask the user if they want to use Slog, Special, L2ARC
-extra_vdevs
+clear
+
+   # ask the user if they want to use Slog, Special, L2ARC
+    extra_vdevs
 
 if [[ "$EXTRA_VDEVS" == "yes" ]]; then
     while true; do
@@ -124,7 +124,10 @@ if [[ "$EXTRA_VDEVS" == "yes" ]]; then
         $L2ARC_VDEV
         # source scripts/slog-vdev.sh
         $SLOG_VDEV
-        if gum_confirm "Do you want to run the extra vdev selection again?"; then
+        if dialog --clear \
+            --backtitle "$BACKTITLE" \
+            --title "Confirm Drives" \
+            --yesno "Do you want to run the extra vdev selection again?" 5 55; then
             break
         fi
     done

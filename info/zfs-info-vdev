@@ -1,147 +1,145 @@
 
-
-#==================================================================================================#
-#                                     VDEVs - What is a VDEV?                                      #
-#==================================================================================================#
-
-A vdev (virtual device) is a fundamental building block of ZFS storage pools.
-It represents a logical grouping of physical storage devices, such as hard drives, SSDs, or partitions.
-
-OpenZFS supports several types of vdevs. Top-level vdevs carry data and provide redundancy:
-
-- ZFS single device: one drive.
-    Standard performance
-    No redundancy.
-
-- ZFS Stripe: One or more devices striped together (like RAID 0)
-    Provides maximum performance but no redundancy. Data will be lost if any device fails.
-
-
-- ZFS Mirror: Stores identical data on two drives for redundancy.
-    Read performance is roughly doubled, write performance equals a single drive.
-    Half the storage capacity is usable.
-
-- ZFS Stripe + Mirror: Two mirror vdevs striped together. Requires minimum 4 drives.
-    Offers roughly 4x read performance with write performance equivalent to two drives.
-    Half the storage capacity.
-
-----------------------------------------------------------------------------------------------------
-RAIDZ: A vdev that uses parity to provide fault tolerance, similar to traditional RAID 5/6.
-    There are three levels of RAIDZ:
-
-- RAIDZ1: Single parity (similar to RAID 5). Minimum 3 disks, recommended 3+.
-- RAIDZ2: Double parity (similar to RAID 6). Minimum 5 disks, recommended 5+.
-- RAIDZ3: Triple parity. Minimum 7 disks, recommended 7+.
-----------------------------------------------------------------------------------------------------
-
-#==================================================================================================#
-#                                   Nordix Performance Guide                                       #
-#==================================================================================================#
-
-- ZFS single drive: gives you one drive performance
-    Performance = Standard disk latency
-    Redundancy = 0
-
-- ZFS Stripe goes fast - it offers the absolute highest performance but provides no redundancy.
-    All storage capacity is usable.
-    Performance = increases with each drive, though not linearly.
-    Total throughput rises, but efficiency per drive decreases slightly due to stripe overhead.
-    from one drive to two drives, performance doubles,
-    and three drives almost three times as fast as a single drive.
-    Going beyond three drives and you will start noticing stripe overhead.
-    The performance will increase but not as good as it does in the beginning.
-    Redundancy = 0.
-
-* ZFS Mirror offers roughly double the read performance with write performance equivalent
-    to a single drive. Half the storage capacity is usable.
-    Redundancy: can lose 1 drive.
-
-* ZFS Stripe + Mirror offers roughly four times the read performance
-    with write performance equivalent to two drives. Half the storage capacity is usable.
-    Redundancy = can lose 1 drive per mirror pair.
-
-* ZFS RAIDZ offers good redundancy and storage efficiency but reduced write performance.
-    Read performance is decent.
-
-Storage usage:
-- RAIDZ: ~67% usable (3 drives)
-    * Redundancy = can lose 1 drive.
-
-- RAIDZ2: ~60% usable (5 drives)
-    * Redundancy = can lose 2 drives.
-
-- RAIDZ3: ~57% usable (7 drives)
-    * Redundancy = can lose 3 drives.
-
-Tip 1:
-    Take in consideration that mix NVME slots that are directly connected to the CPU and NVME slots
-    that are connected to the motherboards chiplets can have negative impact on performance.
-
-    My own testing showed that the chiplet connected NVME slots with CPU connected NVME slots
-    will throttle the performance above 10-15 GB/s
-
-Tip 2:
-    Nordix is a performance oriented distribution and it is designed to use NVME, SSD, and HDD
-    as storage space, RAM is workspace, take that in consideration, the zpool setup should be
-    optimized to feed ARC as fast as possible. Read matters most.
-
-#==================================================================================================#
-#               Recommendations: Stripe/mirror for Home PC, RAIDZ for Servers                      #
-#==================================================================================================#
-
-ZFS is designed for enterprise environments with many drives. For home PCs with few drives:
-  - Stripe is a viable option for maximum performance and full storage utilization
-  - ZFS will close the pool on serious errors (read-only import may still be possible)
-  - Nordix have S.M.A.R.T monitoring service activated natively to help detect drive failures early
-  - Mirror or RAIDZ are recommended if you need redundancy
-
-Keep experimenting with different configurations:
-  - Use ZFS send/receive for backups before testing new setups
-  - Restore from backup if something goes wrong
-  - The best configuration is the one you learn the most from!
-
-#==================================================================================================#
-#                     Device Compatibility Notes                                                   #
-#==================================================================================================#
-When mixing drives in a vdev:
-
-* HDDs: Mixing different speeds (5400 RPM vs 7200 RPM) is generally fine - the impact is minor.
-  But if you want to run the operating system from an HDD,
-  mixing different speeds can cause bottlenecks.
-
-* SSDs/NVMe: Mixing generations can cause bottlenecks:
-  - NVMe Gen3 + Gen4/Gen5 in stripe: Gen4/Gen5 drives will be limited to Gen3 speeds
-  - NVMe Gen4 + Gen5 in stripe: Gen5 drives will be limited to Gen4 speeds
-  - SATA SSDs: Usually similar speeds so mixing is less of an issue
-
-Recommendation:
-- Best scenario: Use identical drives for best performance and reliability.
-- Good practice: Use devices with the same capacity and speed when mixing in a vdev.
-- Avoid mixing drives from different generations in a vdev.
-- Dont mix HDDs, SSDs and NVMe in the same vdev!
-
-#==================================================================================================#
-#                              PCIe Topology and NVMe Performance                                  #
-#==================================================================================================#
-Note: PCIe lanes can be routed differently depending on your motherboard design:
-- CPU-direct lanes: Direct connection to CPU, lowest latency
-- PCH/chiplet lanes: Through platform controller hub, slightly higher latency
-
-This matters most for performance-focused setups:
-- Stripe/mirror with multiple NVMe: CPU-lanes give best throughput and latency
-- RAIDZ with HDDs or single NVMe: PCIe topology has minimal impact (parity/disk speed dominates)
-
-For redundancy-focused systems (RAIDZ, mirror):
-- The difference between CPU/PCH lanes is negligible compared to disk performance
-- Focus more on drive count and capacity than slot placement
-
-Check your motherboard manual to identify which NVMe slots are CPU-connected for optimal setups.
-
-
-#==================================================================================================#
-#                                          Advanced                                                #
-#==================================================================================================#
-For best performance, consider to format your devices in real 4k sectors.
-this will give you the best performance and avoid any potential issues with sector size mismatches.
-
-- This is not covered in the nordix installer for now
+\Zb#==================================================================================================#
+\Zb#==================================================================================================#
+\Zb
+\ZbA vdev (virtual device) is a fundamental building block of ZFS storage pools.
+\ZbIt represents a logical grouping of physical storage devices, such as hard drives, SSDs, or partitions.
+\Zb
+\ZbOpenZFS supports several types of vdevs. Top-level vdevs carry data and provide redundancy:
+\Zb
+\Zb- ZFS single device: one drive.
+\Zb    Standard performance
+\Zb    No redundancy.
+\Zb
+\Zb- ZFS Stripe: One or more devices striped together (like RAID 0)
+\Zb    Provides maximum performance but no redundancy. Data will be lost if any device fails.
+\Zb
+\Zb
+\Zb- ZFS Mirror: Stores identical data on two drives for redundancy.
+\Zb    Read performance is roughly doubled, write performance equals a single drive.
+\Zb    Half the storage capacity is usable.
+\Zb
+\Zb- ZFS Stripe + Mirror: Two mirror vdevs striped together. Requires minimum 4 drives.
+\Zb    Offers roughly 4x read performance with write performance equivalent to two drives.
+\Zb    Half the storage capacity.
+\Zb
+\Zb----------------------------------------------------------------------------------------------------
+\ZbRAIDZ: A vdev that uses parity to provide fault tolerance, similar to traditional RAID 5/6.
+\Zb    There are three levels of RAIDZ:
+\Zb
+\Zb- RAIDZ1: Single parity (similar to RAID 5). Minimum 3 disks, recommended 3+.
+\Zb- RAIDZ2: Double parity (similar to RAID 6). Minimum 5 disks, recommended 5+.
+\Zb- RAIDZ3: Triple parity. Minimum 7 disks, recommended 7+.
+\Zb----------------------------------------------------------------------------------------------------
+\Zb
+\Zb#==================================================================================================#
+\Zb#                                   Nordix Performance Guide                                       #
+\Zb#==================================================================================================#
+\Zb
+\Zb- ZFS single drive: gives you one drive performance
+\Zb    Performance = Standard disk latency
+\Zb    Redundancy = 0
+\Zb
+\Zb- ZFS Stripe goes fast - it offers the absolute highest performance but provides no redundancy.
+\Zb    All storage capacity is usable.
+\Zb    Performance = increases with each drive, though not linearly.
+\Zb    Total throughput rises, but efficiency per drive decreases slightly due to stripe overhead.
+\Zb    from one drive to two drives, performance doubles,
+\Zb    and three drives almost three times as fast as a single drive.
+\Zb    Going beyond three drives and you will start noticing stripe overhead.
+\Zb    The performance will increase but not as good as it does in the beginning.
+\Zb    Redundancy = 0.
+\Zb
+\Zb* ZFS Mirror offers roughly double the read performance with write performance equivalent
+\Zb    to a single drive. Half the storage capacity is usable.
+\Zb    Redundancy: can lose 1 drive.
+\Zb
+\Zb* ZFS Stripe + Mirror offers roughly four times the read performance
+\Zb    with write performance equivalent to two drives. Half the storage capacity is usable.
+\Zb    Redundancy = can lose 1 drive per mirror pair.
+\Zb
+\Zb* ZFS RAIDZ offers good redundancy and storage efficiency but reduced write performance.
+\Zb    Read performance is decent.
+\Zb
+\ZbStorage usage:
+\Zb- RAIDZ: ~67% usable (3 drives)
+\Zb    * Redundancy = can lose 1 drive.
+\Zb
+\Zb- RAIDZ2: ~60% usable (5 drives)
+\Zb    * Redundancy = can lose 2 drives.
+\Zb
+\Zb- RAIDZ3: ~57% usable (7 drives)
+\Zb    * Redundancy = can lose 3 drives.
+\Zb
+\ZbTip 1:
+\Zb    Take in consideration that mix NVME slots that are directly connected to the CPU and NVME slots
+\Zb    that are connected to the motherboards chiplets can have negative impact on performance.
+\Zb
+\Zb    My own testing showed that the chiplet connected NVME slots with CPU connected NVME slots
+\Zb    will throttle the performance above 10-15 GB/s
+\Zb
+\ZbTip 2:
+\Zb    Nordix is a performance oriented distribution and it is designed to use NVME, SSD, and HDD
+\Zb    as storage space, RAM is workspace, take that in consideration, the zpool setup should be
+\Zb    optimized to feed ARC as fast as possible. Read matters most.
+\Zb
+\Zb#==================================================================================================#
+\Zb#               Recommendations: Stripe/mirror for Home PC, RAIDZ for Servers                      #
+\Zb#==================================================================================================#
+\Zb
+\ZbZFS is designed for enterprise environments with many drives. For home PCs with few drives:
+\Zb  - Stripe is a viable option for maximum performance and full storage utilization
+\Zb  - ZFS will close the pool on serious errors (read-only import may still be possible)
+\Zb  - Nordix have S.M.A.R.T monitoring service activated natively to help detect drive failures early
+\Zb  - Mirror or RAIDZ are recommended if you need redundancy
+\Zb
+\ZbKeep experimenting with different configurations:
+\Zb  - Use ZFS send/receive for backups before testing new setups
+\Zb  - Restore from backup if something goes wrong
+\Zb  - The best configuration is the one you learn the most from!
+\Zb
+\Zb#==================================================================================================#
+\Zb#                     Device Compatibility Notes                                                   #
+\Zb#==================================================================================================#
+\ZbWhen mixing drives in a vdev:
+\Zb
+\Zb* HDDs: Mixing different speeds (5400 RPM vs 7200 RPM) is generally fine - the impact is minor.
+\Zb  But if you want to run the operating system from an HDD,
+\Zb  mixing different speeds can cause bottlenecks.
+\Zb
+\Zb* SSDs/NVMe: Mixing generations can cause bottlenecks:
+\Zb  - NVMe Gen3 + Gen4/Gen5 in stripe: Gen4/Gen5 drives will be limited to Gen3 speeds
+\Zb  - NVMe Gen4 + Gen5 in stripe: Gen5 drives will be limited to Gen4 speeds
+\Zb  - SATA SSDs: Usually similar speeds so mixing is less of an issue
+\Zb
+\ZbRecommendation:
+\Zb- Best scenario: Use identical drives for best performance and reliability.
+\Zb- Good practice: Use devices with the same capacity and speed when mixing in a vdev.
+\Zb- Avoid mixing drives from different generations in a vdev.
+\Zb- Dont mix HDDs, SSDs and NVMe in the same vdev!
+\Zb
+\Zb#==================================================================================================#
+\Zb#                              PCIe Topology and NVMe Performance                                  #
+\Zb#==================================================================================================#
+\ZbNote: PCIe lanes can be routed differently depending on your motherboard design:
+\Zb- CPU-direct lanes: Direct connection to CPU, lowest latency
+\Zb- PCH/chiplet lanes: Through platform controller hub, slightly higher latency
+\Zb
+\ZbThis matters most for performance-focused setups:
+\Zb- Stripe/mirror with multiple NVMe: CPU-lanes give best throughput and latency
+\Zb- RAIDZ with HDDs or single NVMe: PCIe topology has minimal impact (parity/disk speed dominates)
+\Zb
+\ZbFor redundancy-focused systems (RAIDZ, mirror):
+\Zb- The difference between CPU/PCH lanes is negligible compared to disk performance
+\Zb- Focus more on drive count and capacity than slot placement
+\Zb
+\ZbCheck your motherboard manual to identify which NVMe slots are CPU-connected for optimal setups.
+\Zb
+\Zb
+\Zb#==================================================================================================#
+\Zb#                                          Advanced                                                #
+\Zb#==================================================================================================#
+\ZbFor best performance, consider to format your devices in real 4k sectors.
+\Zbthis will give you the best performance and avoid any potential issues with sector size mismatches.
+\Zb
+\Zb- This is not covered in the nordix installer for now" 90 110

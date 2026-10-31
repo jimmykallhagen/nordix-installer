@@ -7,19 +7,18 @@ OUTPUT_FILE="${CONFIG_DIR}/selected-special-drives.conf"
 OUTPUT_LIST_FILE="${CONFIG_DIR}/device_list_special.conf"
 OUTPUT_FILE_SPECIAL_LAYOUT="${CONFIG_DIR}/special-layout.conf"
 
-source "${SCRIPT_DIR}/../gum-lib/gum.conf"
 source "${MASTER_LIST}"
 
 clear
-echo -ne "\e]10;${G_BASE_COLOR}\a"
 
 BACKTITLE="Nordix Installer"
 
 handle_interrupt() {
     dialog --clear \
         --backtitle "$BACKTITLE" \
+        --colors --color-mode 2 \
         --title "Cannot Exit" \
-        --msgbox "You cant exit here" 5 25
+        --msgbox "\Z1You cant exit here" 5 25
     exec "${BASH_SOURCE[0]}" "$@"
 }
 trap handle_interrupt INT TERM QUIT HUP
@@ -27,12 +26,14 @@ trap handle_interrupt INT TERM QUIT HUP
 
 dialog --clear \
     --backtitle "$BACKTITLE" \
-    --title "Special Vdev" \
+    --title "🐧Special Vdev🐧" \
     --msgbox "ZFS Special Vdev - Metadata and small files on NVMe/SSD - Game changer for performance on HDD's" 5 100
 
 if dialog --clear \
     --backtitle "$BACKTITLE" \
     --title "Special Vdev" \
+    --colors --color-mode 2 \
+    --yes-label "IWANT SPECIAL VDEV" \
     --yesno "Do you want to add a Special Vdev to your zpool?" 5 55 2>&1 >/dev/tty; then
 
 
@@ -41,7 +42,6 @@ if dialog --clear \
     "SPECIAL - Single    : 1 drive, no redundancy"
     "SPECIAL - Stripe    : 2+ drives, maximum speed, no redundancy (Similar to RAID0)"
     "SPECIAL - Mirror    : 2 drives, fault tolerant (Similar to RAID 1)"
-    "Exit without Special Vdev"
     )
 
     _SPECIAL=""
@@ -49,44 +49,35 @@ if dialog --clear \
     while true; do
         dialog --clear \
             --backtitle "$BACKTITLE" \
-            --title "Special Vdev" \
+            --title "🐧Special Vdev🐧" \
             --msgbox "Choose Layout For Special Vdev" 5 35
 
         menu_args=()
         i=1
         for opt in "${OPTIONS[@]}"; do
-            menu_args+=("$i" "$opt")
+            menu_args+=("$i" "\Zb\Z1$opt")
             ((i++))
         done
 
         choice_idx=$(dialog --clear \
             --backtitle "$BACKTITLE" \
-            --title "Special Vdev Layout" \
+            --colors --color-mode 2 \
+            --title "Special Vdev Layout🐧" \
             --stdout --menu "A Special Vdev stores all metadata, if you lose it, you lose your entire zpool.
-           Mirror is recommended." 12 90 4 "${menu_args[@]}")
+           Mirror is recommended." 0 90 4 "${menu_args[@]}")
         ret=$?
 
         if [ $ret -ne 0 ] || [ -z "$choice_idx" ]; then
             dialog --clear \
                 --backtitle "$BACKTITLE" \
-                --title "Error" \
-                --msgbox "Please select a layout!" 5 30
-            continue
+                --title "Exit" \
+                --msgbox "Maybe next time." 5 40
+            cp "$MASTER_LIST" "$OUTPUT_LIST_FILE"
+            exit 1
         fi
 
         _SPECIAL_TEXT="${OPTIONS[$((choice_idx-1))]}"
 
-        if [[ "$_SPECIAL_TEXT" == "Exit without Special Vdev" ]]; then
-            dialog --clear \
-                --backtitle "$BACKTITLE" \
-                --title "Exit" \
-                --msgbox "Leaving Special Vdev..." 5 30
-            dialog --clear \
-                --backtitle "$BACKTITLE" \
-                --title "Exit" \
-                --msgbox "Maybe next time." 5 30
-            exit 1
-        fi
 
         case "$_SPECIAL_TEXT" in
             "SPECIAL - Single    : 1 drive, no redundancy") _SPECIAL="special-single" ;;
@@ -134,23 +125,32 @@ if dialog --clear \
     selected_ids=""
 
     while true; do
-        dialog --clear --backtitle "$BACKTITLE" --title "Select Drives" --msgbox "$_SPECIAL (requires $MIN_DRIVES-$MAX_DRIVES drives)" 6 60
+        dialog --clear \
+            --backtitle "$BACKTITLE" \
+            --colors --color-mode 2 \
+            --title "Select Drives" \
+            --msgbox "\Zb$_SPECIAL (requires \Z4$MIN_DRIVES\Z0-\Z1$MAX_DRIVES\Z0 drives)" 6 60
 
         if [[ -z "$selected_ids" ]]; then
             checklist_args=()
             i=1
             for disp in "${drive_displays[@]}"; do
-                checklist_args+=("$i" "$disp" "OFF")
+                checklist_args+=("$i" "\Zb\Z1$disp" "OFF")
                 ((i++))
             done
             selected_tags=$(dialog --clear \
                 --backtitle "$BACKTITLE" \
-                --title "Select Drives" \
-                --stdout --checklist "Select drive for your Special Vdev" 20 90 10 "${checklist_args[@]}")
+                --title "Select Devices" \
+                --colors --color-mode 2 \
+                --stdout --checklist "Select device[s] for your Special Vdev" 20 90 10 "${checklist_args[@]}")
             ret=$?
+
             if [ $ret -ne 0 ] || [ -z "$selected_tags" ]; then
-                dialog --clear --backtitle "$BACKTITLE" --title "Error" --msgbox "Please select at least one drive!" 6 50
-                continue
+                dialog --clear \
+                    --backtitle "$BACKTITLE" \
+                    --title "Exit" \
+                    --msgbox "Maybe next time." 5 40
+                exit 1
             fi
             selected_ids=""
             for tag in $selected_tags; do
@@ -165,13 +165,21 @@ if dialog --clear \
         done <<< "$selected_ids"
 
         if [[ $drive_count -lt $MIN_DRIVES ]]; then
-            dialog --clear --backtitle "$BACKTITLE" --title "Error" --msgbox "Error: $_SPECIAL layout requires at least $MIN_DRIVES drives (you selected $drive_count)" 7 70
+            dialog --clear \
+                --backtitle "$BACKTITLE" \
+                --colors --color-mode 2 \
+                --title "\Z1Error" \
+                --msgbox "\ZbError: $_SPECIAL layout requires at least \Z4$MIN_DRIVES\Z0 drives (you selected $drive_count)" 7 70
             selected_ids=""
             continue
         fi
 
         if [[ $MAX_DRIVES != "999" && $drive_count -gt $MAX_DRIVES ]]; then
-            dialog --clear --backtitle "$BACKTITLE" --title "Error" --msgbox "Error: $_SPECIAL layout allows maximum $MAX_DRIVES drives (you selected $drive_count)" 7 70
+            dialog --clear \
+                --backtitle "$BACKTITLE" \
+                --colors --color-mode 2 \
+                --title "\Z1Error" \
+                --msgbox "\ZbError: $_SPECIAL layout allows maximum \Z1$MAX_DRIVES\Z0 drives (you selected $drive_count)" 7 70
             selected_ids=""
             continue
         fi
@@ -187,9 +195,12 @@ if dialog --clear \
                 fi
             done
         done <<< "$selected_ids"
-        confirm_text=$(printf "%s" "$confirm_lines" | head -c 200)
+        confirm_text=$(printf "%s" "$confirm_lines")
 
-        if dialog --clear --backtitle "$BACKTITLE" --title "Confirm Drives" --yesno "Confirm selected $drive_count drives:\n$confirm_text" 15 70 2>&1 >/dev/tty; then
+        if dialog --clear \
+            --backtitle "$BACKTITLE" \
+            --title "Confirm Drives" \
+            --yesno "Confirm selected $drive_count drives:\n$confirm_text" 15 70 2>&1 >/dev/tty; then
             break
         fi
         selected_ids=""
@@ -207,13 +218,18 @@ if dialog --clear \
     awk -F'=' 'BEGIN { i=1 } { printf "DRIVE_%d=%s\n", i, $2; i++ }' > "$OUTPUT_LIST_FILE"
 
     clear
-    dialog --clear --backtitle "$BACKTITLE" --title "Done" --msgbox "Configuring special drive is done" 6 50
-    dialog --clear --backtitle "$BACKTITLE" --title "Note" --msgbox "Note: A Special Vdev can not be removed" 6 60
+    dialog --clear \
+        --backtitle "$BACKTITLE" \
+        --title "Note" \
+        --msgbox "Note: A Special Vdev can not be removed" 6 60
     exit 0
 
 else
     cp "$MASTER_LIST" "$OUTPUT_LIST_FILE"
     clear
-    dialog --clear --backtitle "$BACKTITLE" --title "Note" --msgbox "Special Vdev can be added later, but never removed" 6 60
+    dialog --clear \
+        --backtitle "$BACKTITLE" \
+        --title "Note" \
+        --msgbox "Special Vdev can be added later, but never removed" 6 60
     exit 1
 fi

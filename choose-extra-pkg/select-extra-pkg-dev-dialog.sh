@@ -1,17 +1,16 @@
 #!/bin/bash
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-source "${SCRIPT_DIR}/../gum-lib/gum.conf"
 OUTPUT_FILE="${SCRIPT_DIR}/../config/extra-pkg-dev.conf"
-unset CHOICE
 
-echo -ne "\e]10;${G_BASE_COLOR}\a"
+clear
 
 BACKTITLE="Nordix Installer"
 
 handle_interrupt() {
     dialog --clear \
         --backtitle "$BACKTITLE" \
-        --title "Cannot Exit" \
+        --colors --color-mode 2 \
+        --title "\Zb\Z1Cannot Exit" \
         --msgbox "You cant exit here" 5 25
     exec "${BASH_SOURCE[0]}" "$@"
 }
@@ -22,36 +21,31 @@ OPTIONS=(
     "Emacs - Classic, extensible editor with a built-in development environment."
     "Neovim - Powerful terminal-based text editor fork of Vim."
     "Helix - Vim like terminal-based text editor."
-    "Sublime - Powerful text editor with a focus on speed and efficiency, proprietary offer unlimited free trials."
-    "Exit"
+    "Sublime Text 4 - Powerful text editor with a focus on speed and efficiency, proprietary offer unlimited free trials."
 )
 
 while true; do
     dialog --clear \
         --backtitle "$BACKTITLE" \
-        --title "Extra Packages" \
+        --colors --color-mode 2 \
+        --title "\ZbExtra Packages" \
         --msgbox "Extra package selection: Development" 5 40
 
     menu_args=()
     i=1
     for opt in "${OPTIONS[@]}"; do
         [[ -z "$opt" ]] && continue
-        menu_args+=("$i" "$opt" "OFF")
+        menu_args+=("$i" "\Zb\Z1$opt" "OFF")
         ((i++))
     done
 
     selected_tags=$(dialog --clear \
         --backtitle "$BACKTITLE" \
-        --title "Extra Packages" \
-        --stdout --checklist "Visual editors and terminal-based editors" 13 120 7 "${menu_args[@]}")
+        --title "\Zb\Z0Extra Packages" \
+        --colors --color-mode 2 \
+        --stdout --checklist "┌
+\Zb\Z4 Visual editors and terminal-based editors" 0 125 5 "${menu_args[@]}")
     ret=$?
-    if [ $ret -ne 0 ]; then
-        dialog --clear \
-            --backtitle "$BACKTITLE" \
-            --title "Info" \
-            --msgbox "Maybe next time" 6 40
-        break
-    fi
 
     # Build option list without empties
     opt_list=()
@@ -75,24 +69,25 @@ while true; do
         dialog --clear \
             --backtitle "$BACKTITLE" \
             --title "Info" \
-            --msgbox "Maybe next time" 6 40
+            --msgbox "Maybe next time" 5 40
         break
     fi
 
     confirm_text=$(printf "%s\n" "${selected_opts[@]}")
     if dialog --clear \
-        --backtitle "$BACKTITLE" \
-        --title "Confirm" \
-        --yesno "Confirm package(s):\n$confirm_text" 12 90 2>&1 >/dev/tty; then
+            --backtitle "$BACKTITLE" \
+            --title "\ZbConfirm Packages" \
+            --yes-label "I want PKG" \
+            --yesno "Confirm package(s):\n$confirm_text" 12 90 2>&1 >/dev/tty; then
 
         > "${OUTPUT_FILE}"
         for line in "${selected_opts[@]}"; do
             case "$line" in
-                "Zed Editor - Featureful and powerful agent driven text editor, good alternative to VSCode.")                    echo "PKG-W1=zed"     >> "${OUTPUT_FILE}" ;;
-                "Emacs - Classic, extensible editor with a built-in development environment.")                                   echo "PKG-W2=emacs"   >> "${OUTPUT_FILE}" ;;
-                "Neovim - Powerful terminal-based text editor fork of Vim.")                                                     echo "PKG-W3=neovim"  >> "${OUTPUT_FILE}" ;;
-                "Helix - Vim like terminal-based text editor.")                                                                  echo "PKG-W4=helix"   >> "${OUTPUT_FILE}" ;;
-                "Sublime - Powerful text editor with a focus on speed and efficiency, proprietary offer unlimited free trials.") echo "PKG-W5=sublime" >> "${OUTPUT_FILE}" ;;
+                "Zed Editor - Featureful and powerful agent driven text editor, good alternative to VSCode.")                    echo "zed"     >> "${OUTPUT_FILE}" ;;
+                "Emacs - Classic, extensible editor with a built-in development environment.")                                   echo "emacs"   >> "${OUTPUT_FILE}" ;;
+                "Neovim - Powerful terminal-based text editor fork of Vim.")                                                     echo "neovim"  >> "${OUTPUT_FILE}" ;;
+                "Helix - Vim like terminal-based text editor.")                                                                  echo "helix"   >> "${OUTPUT_FILE}" ;;
+                "Sublime Text 4- Powerful text editor with a focus on speed and efficiency, proprietary offer unlimited free trials.") echo "sublime-text-4" >> "${OUTPUT_FILE}" ;;
             esac
         done
         break
