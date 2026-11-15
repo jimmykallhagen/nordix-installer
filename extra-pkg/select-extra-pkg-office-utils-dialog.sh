@@ -5,6 +5,7 @@ BACKTITLE="Nordix Installer"
 
 clear
 
+
 handle_interrupt() {
     dialog --clear \
         --backtitle "$BACKTITLE" \
@@ -14,6 +15,7 @@ handle_interrupt() {
     exec "${BASH_SOURCE[0]}" "$@"
 }
 trap handle_interrupt INT TERM QUIT HUP
+
 
 OPTIONS=(
     "LibreOffice - Completely featured office suite."
@@ -40,7 +42,7 @@ while true; do
         --backtitle "$BACKTITLE" \
         --title "\Zb\Z0Extra Packages" \
         --colors --color-mode 2 \
-        --stdout --checklist "\Zb\Z4Utilities" 0 130 3 "${menu_args[@]}")
+        --stdout --checklist "\Zb\Z4Utilities" 12 130 4 "${menu_args[@]}")
 
     opt_list=()
     for o in "${OPTIONS[@]}"; do
@@ -76,9 +78,9 @@ while true; do
         > "${OUTPUT_FILE}"
         for line in "${selected_opts[@]}"; do
             case "$line" in
-                "LibreOffice"*)                         echo "libreoffice-fresh" >> "${OUTPUT_FILE}" ;;
-                "PeaZip"*)                              echo "peazip"            >> "${OUTPUT_FILE}" ;;
-                "Qbittorrent"*)                         echo "qbittorrent"       >> "${OUTPUT_FILE}" ;;
+                "LibreOffice - Completely featured office suite.")                                                                   echo "PKG-OU1=libreoffice" >> "${OUTPUT_FILE}" ;;
+                "PeaZip - File and archive manager application features volume spanning, compression and authenticated encryption.") echo "PKG-OU2=peazip" >> "${OUTPUT_FILE}" ;;
+                "Qbittorrent - BitTorrent client.")                                                                                  echo "PKG-OU3=qbittorrent" >> "${OUTPUT_FILE}" ;;
             esac
         done
         break

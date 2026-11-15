@@ -1,7 +1,6 @@
 #!/bin/bash
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-OUTPUT_FILE="${SCRIPT_DIR}/../config/extra-pkg-dev.conf"
-
+OUTPUT_FILE="${SCRIPT_DIR}/../config/extra-pkg-creative.conf"
 clear
 
 BACKTITLE="Nordix Installer"
@@ -12,16 +11,19 @@ handle_interrupt() {
         --colors --color-mode 2 \
         --title "\Zb\Z1Cannot Exit" \
         --msgbox "You cant exit here" 5 25
-    exec "${BASH_SOURCE[0]}" "$@"
+exec "${BASH_SOURCE[0]}" "$@"
 }
 trap handle_interrupt INT TERM QUIT HUP
 
 OPTIONS=(
-    "Zed Editor - Featureful and powerful agent driven text editor, good alternative to VSCode."
-    "Emacs - Classic, extensible editor with a built-in development environment."
-    "Neovim - Powerful terminal-based text editor fork of Vim."
-    "Helix - Vim like terminal-based text editor."
-    "Sublime Text 4 - Powerful text editor with a focus on speed and efficiency, proprietary offer unlimited free trials."
+    "Gimp - GNU Image Manipulation Program"
+    "Blender - 3D modeling and animation software"
+    "Krita - Digital painting and illustration software"
+    "Inkscape - Vector graphics editor"
+    "Shotcut - Video editing software"
+    "OBS Studio - Open Broadcaster Software"
+    "GPU Screen Recorder - The fastest screen recorder for Linux"
+    "Upscayl Desktop app - AI image upscaling software"
 )
 
 while true; do
@@ -29,7 +31,7 @@ while true; do
         --backtitle "$BACKTITLE" \
         --colors --color-mode 2 \
         --title "\ZbExtra Packages" \
-        --msgbox "Extra package selection: Development" 5 40
+        --msgbox "Extra package selection: Creative" 5 45
 
     menu_args=()
     i=1
@@ -38,16 +40,14 @@ while true; do
         menu_args+=("$i" "\Zb\Z1$opt" "OFF")
         ((i++))
     done
+#              --aspect ratio \
 
     selected_tags=$(dialog --clear \
         --backtitle "$BACKTITLE" \
         --title "\Zb\Z0Extra Packages" \
         --colors --color-mode 2 \
-        --stdout --checklist "┌
-\Zb\Z4 Visual editors and terminal-based editors" 0 125 5 "${menu_args[@]}")
-    ret=$?
+        --stdout --checklist "\Zb\Z4| Video Editing - Photo Editing - Graphics - Recording - Streaming - Image Editing - Upscaling" 0 100 9 "${menu_args[@]}")
 
-    # Build option list without empties
     opt_list=()
     for o in "${OPTIONS[@]}"; do
         [[ -z "$o" ]] && continue
@@ -75,19 +75,24 @@ while true; do
 
     confirm_text=$(printf "%s\n" "${selected_opts[@]}")
     if dialog --clear \
+            --colors \
+            --color-mode 2 \
             --backtitle "$BACKTITLE" \
             --title "\ZbConfirm Packages" \
             --yes-label "I want PKG" \
-            --yesno "Confirm package(s):\n$confirm_text" 12 90 2>&1 >/dev/tty; then
-
+            --yesno "Confirm package(s):\n$confirm_text" 15 65 2>&1 >/dev/tty; then
         > "${OUTPUT_FILE}"
+
         for line in "${selected_opts[@]}"; do
             case "$line" in
-                "Zed Editor - Featureful and powerful agent driven text editor, good alternative to VSCode.")                    echo "zed"     >> "${OUTPUT_FILE}" ;;
-                "Emacs - Classic, extensible editor with a built-in development environment.")                                   echo "emacs"   >> "${OUTPUT_FILE}" ;;
-                "Neovim - Powerful terminal-based text editor fork of Vim.")                                                     echo "neovim"  >> "${OUTPUT_FILE}" ;;
-                "Helix - Vim like terminal-based text editor.")                                                                  echo "helix"   >> "${OUTPUT_FILE}" ;;
-                "Sublime Text 4- Powerful text editor with a focus on speed and efficiency, proprietary offer unlimited free trials.") echo "sublime-text-4" >> "${OUTPUT_FILE}" ;;
+                "Gimp - GNU Image Manipulation Program") echo "PKG-C1=gimp" >> "${OUTPUT_FILE}" ;;
+                "Blender - 3D modeling and animation software") echo "PKG-C2=blender" >> "${OUTPUT_FILE}" ;;
+                "Krita - Digital painting and illustration software") echo "PKG-C3=krita" >> "${OUTPUT_FILE}" ;;
+                "Inkscape - Vector graphics editor") echo "PKG-C4=inkscape" >> "${OUTPUT_FILE}" ;;
+                "Shotcut - Video editing software") echo "PKG-C5=shotcut" >> "${OUTPUT_FILE}" ;;
+                "OBS Studio - Open Broadcaster Software") echo "PKG-C6=obs-studio" >> "${OUTPUT_FILE}" ;;
+                "GPU Screen Recorder - The fastest screen recorder for Linux") echo "PKG-C7=gpu-screen-recorder" >> "${OUTPUT_FILE}" ;;
+                "Upscayl Desktop app - AI image upscaling software") echo "PKG-C8=upscayl-desktop-git" >> "${OUTPUT_FILE}" ;;
             esac
         done
         break

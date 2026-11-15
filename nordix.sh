@@ -46,8 +46,8 @@ trap handle_interrupt INT TERM QUIT HUP
 # source info/nordix-welcome
 while true; do
 
-    $WELCOME
-    $CONFIRM_ZFS
+    "${WELCOME}"
+    "${CONFIRM_ZFS}"
 
 
 #-----------------------------
@@ -56,7 +56,7 @@ while true; do
 ##======================================================##
 # Install ZFS modules
 #
-$IMPORT_ZFS_MODULE
+"${IMPORT_ZFS_MODULE}"
 
 done
 ##======================================================##
@@ -74,7 +74,7 @@ while true; do
 # Import devices, get humanreadable and /dev/disk/by-id
 # source scripts/import-devices.sh
 
-$IMPORT_DEVICES
+"${IMPORT_DEVICES}"
 ##======================================================##
 
 
@@ -85,17 +85,27 @@ $IMPORT_DEVICES
 # Select the boot drive
 # source scripts/select-boot-drive.sh
 
-$BOOT_DEVICE
+"${BOOT_DEVICE}"
 ##======================================================##
 
 #----------------------------
 # ZPOOL setup
 #----------------------------
+# Info to the HDD users
+# for inform the user of the unique HHD propertys ZFS comes with
+diagonal --clear \
+--backtitle "INFO ZFS unique HDD propertys" \
+--title "ZFS unique HDD propertys" \
+--msgbox "Nordix have the ZFS option copies=2 on root
+- Almost dubble the read performance on HDD's
+- Boost read performance on NVMe/SSD to - But not that much
+- High protection against data corruption" 8 70
+
 ##======================================================##
 # Select zpool layout and devices
 # source scripts/select-zpool-layout.sh
 
-$ZPOOL_LAYOUT
+"${ZPOOL_LAYOUT}"
 ##======================================================##
 
 done
@@ -113,17 +123,18 @@ done
 
 clear
 
+
    # ask the user if they want to use Slog, Special, L2ARC
     extra_vdevs
 
-if [[ "$EXTRA_VDEVS" == "yes" ]]; then
+if [[ "${EXTRA_VDEVS}" == "yes" ]]; then
     while true; do
         # source scripts/special-vdev.sh
-        $SPECIAL_VDEV
+        "${SPECIAL_VDEV}"
         # source scripts/l2arc-vdev.sh
-        $L2ARC_VDEV
+        "${L2ARC_VDEV}"
         # source scripts/slog-vdev.sh
-        $SLOG_VDEV
+        "${SLOG_VDEV}"
         if dialog --clear \
             --backtitle "$BACKTITLE" \
             --title "Confirm Drives" \
@@ -144,11 +155,11 @@ gum_box "All data on the selected devices will be erased"
 if gum_confirm "Do you want to create the zpool?"; then
     # source scripts/erase-drive.sh
 
-    gum_spin "Erasing devices..." $ERASE_DEVICES
+    gum_spin "Erasing devices..." "${ERASE_DEVICES}"
     # source scripts/formatting.sh
-    gum_spin "Formatting devices..." $FORMATTING
+    gum_spin "Formatting devices..." "${FORMATTING}"
     # source scripts/special-vdev.sh
-    gum_spin "Adding extra vdev... if you selected it" $EXTRA_VDEV
+    gum_spin "Adding extra vdev... if you selected it" "${EXTRA_VDEV}"
     # break the loop
     break
 fi
@@ -194,10 +205,10 @@ gum_box "Checking if the zpool have been created..."
 #
 # GPU - RAM - SIZE - DESKTOP INFO
 
-SELECT_RAM_SIZE="$SCRIPT_DIR/choose-scripts/select-ram-size.sh"
-SELECT_GPU="$SCRIPT_DIR/choose-scripts/select-gpu.sh"
-source "$SCRIPT_DIR/config/ram-size.conf"
-source "$SCRIPT_DIR/config/gpu.conf"
+SELECT_RAM_SIZE="${SCRIPT_DIR}/choose-scripts/select-ram-size.sh"
+SELECT_GPU="${SCRIPT_DIR}/choose-scripts/select-gpu.sh"
+source "${SCRIPT_DIR}/config/ram-size.conf"
+source "${SCRIPT_DIR}/config/gpu.conf"
 
 # i planned to add selection, between headless server and desktop
 # it is nor developed yet
@@ -212,7 +223,7 @@ source "$SCRIPT_DIR/config/gpu.conf"
 
 while true; do
     clear
-    $SELECT_RAM_SIZE
+    "${SELECT_RAM_SIZE}"
 # source choose-scripts/select-ram-size.sh
     gum_box "RAM size selected: $_ram"
     if gum_confirm "Continue?"; then
@@ -222,7 +233,7 @@ done
 
 while true; do
     clear
-    $SELECT_GPU
+    "${SELECT_GPU}"
 # source choose-scripts/select-gpu.sh
     gum_box "GPU selected: $GPU"
     if gum_confirm "Continue?"; then
@@ -281,14 +292,14 @@ gum_spin_timer "You have selected Umbreil and Labwc, hope you like it!"
 # Locale - timezone
 
 ##======================================================##
-SET_LOCALE=$SCRIPT_DIR/choose-scripts/select-locale.sh
-SET_TIMEZONE=$SCRIPT_DIR/choose-scripts/select-timezone.sh
+SET_LOCALE="${SCRIPT_DIR}/choose-scripts/select-locale.sh"
+SET_TIMEZONE="${SCRIPT_DIR}/choose-scripts/select-timezone.sh"
 
 # Give the user the option to select a locale
-    $SET_LOCALE
+    "${SET_LOCALE}"
 
 # Give the user the option to select a timezone
-    $SET_TIMEZONE
+    "${SET_TIMEZONE}"
  ##======================================================##
  # Done!
  ##======================================================##
@@ -299,16 +310,16 @@ SET_TIMEZONE=$SCRIPT_DIR/choose-scripts/select-timezone.sh
 #
 # Set Hostname - Create username - Create password
 
-SET_HOSTNAME=$SCRIPT_DIR/choose-scripts/select-hostname.sh
-SET_USERNAME=$SCRIPT_DIR/choose-scripts/select-user.sh
+SET_HOSTNAME="${SCRIPT_DIR}/choose-scripts/select-hostname.sh"
+SET_USERNAME="${SCRIPT_DIR}/choose-scripts/select-user.sh"
 
 # set hostname
-$SET_HOSTNAME
+"${SET_HOSTNAME}"
 # set username
-$SET_USERNAME
+"${SET_USERNAME}"
 
 # Source the user config
-source "$SCRIPT_DIR/config/user.conf"
+source "${SCRIPT_DIR}/config/user.conf"
 ##======================================================##
 # Done!
 ##======================================================##
@@ -327,7 +338,7 @@ Your home will have English named directories
 To change this you need to change mountpoint on the home dataset
 "
 
-source $SCRIPT_DIR/scripts/create-dataset.sh
+source "${SCRIPT_DIR}/scripts/create-dataset.sh"
 # Prepare the zpool before the main dataset script
 # Create the parent ROOT dataset
 zfs create -o mountpoint=none \
@@ -413,7 +424,7 @@ gum_box_timer "ZFS is prepared and mounted on /mnt"
 # Install the base system
 
 # Source the base package list
-source "$SCRIPT_DIR/lib/base-package-list.conf"
+source "${SCRIPT_DIR}/lib/base-package-list.conf"
 
 clear
 gum_box "INSTALLATION PART2"
@@ -428,7 +439,7 @@ gum_box_sleep "Base system installed, initializing user before continuing..."
 # creating user and configure the home directory
 
 # Source the user install/setup script
-source "$SCRIPT_DIR/install-scripts/user-config.sh"
+source "${SCRIPT_DIR}/install-scripts/user-config.sh"
 
 clear
 gum_box "Configuring user before continuing the installation"
@@ -439,4 +450,3 @@ install_user
 ######################- PART9 -###########################
 #
 # Continue with the installation
-#

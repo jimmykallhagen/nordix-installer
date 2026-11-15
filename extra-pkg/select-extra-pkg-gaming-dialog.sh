@@ -19,7 +19,6 @@ trap handle_interrupt INT TERM QUIT HUP
 
 OPTIONS=(
     "Steam - Game launcher"
-    "Umu Launcher - The Unified Launcher for Windows Games on Linux, to run Proton with fixes outside of Steam"
     "Gamescope Session - SteamOS gaming session ported from ChimeraOS"
     "Lutris - Cross-platform game launcher and manager"
     "Lutris Gamepad UI - Turns your Lutris game library into a console like experience, including game session"
@@ -28,9 +27,6 @@ OPTIONS=(
     "Gamescope - SteamOS compositor for gaming sessions"
     "Goverlay - Gaming overlay for Steam, Lutris, Heroic and more"
     "Vesktop - A standalone Electron-based Discord app with Vencord & improved Linux support"
-    "0.A.D - A free, open-source reimplementation of the classic Age of Empires II"
-    "Xonotic - A free, open-source reimplementation of the classic Quake III Arena"
-    "SuperTuxKart - A free, open-source racing game"
 )
 
 while true; do
@@ -52,7 +48,7 @@ while true; do
         --backtitle "$BACKTITLE" \
         --title "\Zb\Z0Extra Packages" \
         --colors --color-mode 2 \
-        --stdout --checklist "\Zb\Z4| Game launchers - Gaming sessions - Utilities - Discord - Proton" 0 121 13 "${menu_args[@]}")
+        --stdout --checklist "\Zb\Z4| Game launchers - Gaming sessions - Utilities - Discord - Proton" 16 121 9 "${menu_args[@]}")
 
 
     opt_list=()
@@ -89,19 +85,15 @@ while true; do
         > "${OUTPUT_FILE}"
         for line in "${selected_opts[@]}"; do
             case "$line" in
-                "Steam - Game launcher")                                                                                     echo "steam" >> "${OUTPUT_FILE}" ;;
-                "Umu Launcher - The Unified Launcher for Windows Games on Linux, to run Proton with fixes outside of Steam") echo "umu-launcher" >> "${OUTPUT_FILE}" ;;
-                "Gamescope Session Steam - SteamOS gaming session ported from ChimeraOS")                                    echo "gamescope-session-steam-git" >> "${OUTPUT_FILE}" ;;
-                "Lutris - Cross-platform game launcher and manager")                                                         echo "lutris" >> "${OUTPUT_FILE}" ;;
-                "Lutris Gamepad UI - Turns your Lutris game library into a console like experience, including game session") echo "lutris-gamepad-ui-git" >> "${OUTPUT_FILE}" ;;
-                "Heroic - An Open source Launcher for Epic, Amazon and GOG Games")                                           echo "heroic-games-launcher-bin" >> "${OUTPUT_FILE}" ;;
-                "ProtonPlus - Install and manage custom Proton and wine versions for Steam, Lutris and Heroic")              echo "protonplus" >> "${OUTPUT_FILE}" ;;
-                "Gamescope - SteamOS compositor for gaming sessions")                                                        echo "gamescope" >> "${OUTPUT_FILE}" ;;
-                "Goverlay - Gaming overlay for Steam, Lutris, Heroic and more")                                              echo "goverlay" >> "${OUTPUT_FILE}" ;;
-                "Vesktop - A standalone Electron-based Discord app with Vencord & improved Linux support")                   echo "vesktop" >> "${OUTPUT_FILE}" ;;
-                "0.A.D - A free, open-source reimplementation of the classic Age of Empires II")                             echo "0ad" >> "${OUTPUT_FILE}" ;;
-                "Xonotic - A free, open-source reimplementation of the classic Quake III Arena")                             echo "xonotic" >> "${OUTPUT_FILE}" ;;
-                "SuperTuxKart - A free, open-source racing game")                                                            echo "supertuxkart" >> "${OUTPUT_FILE}" ;;
+                "Steam - Game launcher")                                                                                     echo "PKG-G1=steam" >> "${OUTPUT_FILE}" ;;
+                "Gamescope Session - SteamOS gaming session ported from ChimeraOS")                                          echo "PKG-G2=gamescope-session-steam" >> "${OUTPUT_FILE}" ;;
+                "Lutris - Cross-platform game launcher and manager")                                                         echo "PKG-G3=lutris" >> "${OUTPUT_FILE}" ;;
+                "Lutris Gamepad UI - Turns your Lutris game library into a console like experience, including game session") echo "PKG-G4=lutris-gamepad-ui" >> "${OUTPUT_FILE}" ;;
+                "Heroic - An Open source Launcher for Epic, Amazon and GOG Games")                                           echo "PKG-G5=heroic" >> "${OUTPUT_FILE}" ;;
+                "ProtonPlus - Install and manage custom Proton and wine versions for Steam, Lutris and Heroic")              echo "PKG-G6=protonplus" >> "${OUTPUT_FILE}" ;;
+                "Gamescope - SteamOS compositor for gaming sessions")                                                        echo "PKG-G7=gamescope" >> "${OUTPUT_FILE}" ;;
+                "Goverlay - Gaming overlay for Steam, Lutris, Heroic and more")                                              echo "PKG-G8=goverlay" >> "${OUTPUT_FILE}" ;;
+                "Vesktop - A standalone Electron-based Discord app with Vencord & improved Linux support")                   echo "PKG-G9=vesktop" >> "${OUTPUT_FILE}" ;;
             esac
         done
         break

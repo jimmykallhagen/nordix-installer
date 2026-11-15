@@ -18,17 +18,13 @@ trap handle_interrupt INT TERM QUIT HUP
 
 OPTIONS=(
     'Docker - ZFS drivers.'
-    'Podman - Container runtime.'
-    'Podman Desktop - GUI management tool for Podman, docker, Kubernetes.'
     'SSH -  OpenSSH remote login client.'
     'VM - Run virtual machines with Qemu, KVM, libvirt and Virt-Manager.'
     'Ollama - Host local ai, simpel terminal ui, good support to supply local ai models to other ai tools.'
     'LmStudio - Host local ai, full GUI from start, can be used to supply local ai models to other ai tools.'
     'Unsloth - Chat, create music, video, images and full development tooling with WebUI for local ai development.'
-    'Cockpit - Web-based server management (Base).'
+    'Cockpit - Web-based server management.'
     'Kodi – a self-hosted entertainment hub for media.'
-
-
 )
 
 while true; do
@@ -51,7 +47,7 @@ while true; do
         --backtitle "$BACKTITLE" \
         --title "\Zb\Z0Extra Packages" \
         --colors --color-mode 2 \
-        --stdout --checklist "\Zb\Z4| Local AI - SSH - Virtualization - WebUI - Self hosting" 0 122 9 "${menu_args[@]}")
+        --stdout --checklist "\Zb\Z4| Local AI - SSH - Virtualization - WebUI - Self hosting" 15 122 8 "${menu_args[@]}")
 
 
     # Map tags to option texts
@@ -93,16 +89,14 @@ while true; do
 
         for line in "${selected_opts[@]}"; do
             case "$line" in
-                "Docker - Container runtime with ZFS drivers.")                                                                     echo "docker" >> "${OUTPUT_FILE}" ;;
-                "Podman - Container runtime.")                                                                                      echo "podman" >> "${OUTPUT_FILE}" ;;
-                "Podman Desktop - GUI management tool for Podman, docker, Kubernetes.")                                             echo "podman-desktop" >> "${OUTPUT_FILE}" ;;
-                "SSH -  OpenSSH remote login client.")                                                                              echo "openssh" >> "${OUTPUT_FILE}" ;;
-                "VM - Run virtual machines with Qemu, KVM, libvirt and Virt-Manager.")                                              echo "VM" >> "${OUTPUT_FILE}" ;;
-                "Ollama - Host local ai, simpel terminal ui, good support to supply local ai models to other ai tools.")            echo "ollama" >> "${OUTPUT_FILE}" ;;
-                "LmStudio - Host local ai, full GUI from start, can be used to supply local ai models to other ai tools.")          echo "lmstudio" >> "${OUTPUT_FILE}" ;;
-                "Unsloth - Chat, create music, video, images and full development tooling with WebUI for local ai development.")    echo "unsloth" >> "${OUTPUT_FILE}" ;;
-                "Cockpit - Web-based server management (Base).")                                                                    echo "cockpit" >> "${OUTPUT_FILE}" ;;
-                "Kodi – a self-hosted entertainment hub for media.")                                                                echo "kodi" >> "${OUTPUT_FILE}" ;;
+                "Docker - ZFS drivers.")   echo "PKG-H1=docker" >> "${OUTPUT_FILE}" ;;
+                "SSH -  OpenSSH remote login client.")   echo "PKG-H2=ssh" >> "${OUTPUT_FILE}" ;;
+                "VM - Run virtual machines with Qemu, KVM, libvirt and Virt-Manager.") echo "PKG-H3=VM" >> "${OUTPUT_FILE}" ;;
+                "Ollama - Host local ai, simpel terminal ui, good support to supply local ai models to other ai tools.") echo "PKG-H4=ollama" >> "${OUTPUT_FILE}" ;;
+                "LmStudio - Host local ai, full GUI from start, can be used to supply local ai models to other ai tools.") echo "PKG-H5=lmstudio" >> "${OUTPUT_FILE}" ;;
+                "Unsloth - Chat, create music, video, images and full development tooling with WebUI for local ai development.") echo "PKG-H6=unsloth" >> "${OUTPUT_FILE}" ;;
+                "Cockpit - Web-based server management.") echo "PKG-H7=cockpit" >> "${OUTPUT_FILE}" ;;
+                "Kodi – a self-hosted entertainment hub for media.") echo "PKG-H8=kodi" >> "${OUTPUT_FILE}" ;;
             esac
         done
         break

@@ -23,7 +23,7 @@ while true; do
 
 # Username: loop until a valid username is confirmed.
 
-       while true; do
+
         USER_NAME=$(dialog --clear \
             --backtitle "$BACKTITLE" \
             --title "Create User Account" \
@@ -46,74 +46,71 @@ while true; do
 
         if dialog --clear \
             --title "Confirm username" \
-            --yesno "Are you sure about this username?\n\n$USER_NAME"  5 50; then  2>&1 > /dev/tty; then
-
-        else
+            --yesno "Are you sure about this username?\n\n$USER_NAME"  5 50  \
+            2>&1 > /dev/tty; then
+            # Little trolling.
+            if [ "$USER_NAME" != "nordix" ]; then
+                dialog --clear \
+                    --title "Noted" \
+                    --colors --color-mode 2 \
+                    --msgbox "Well, if you really think it turned out well, \Zbthat's your choice..."  5 50
+            else
+                dialog --clear \
+                    --title "Nice!" \
+                    --msgbox "Exquisite choice of username."  5 50
+            fi
+                    else
             continue
         fi
 
-
-   # A little personality, same as the gum version.
-    if [ "$USER_NAME" != "nordix" ]; then
-        dialog --clear \
-            --title "Noted" \
-            --colors --color-mode 2 \
-            --msgbox "Well, if you really think it turned out well, \Zbthat's your choice..."  5 50
-    else
-        dialog --clear \
-            --title "Nice!" \
-            --msgbox "Exquisite choice of username."  5 50
-    fi
-
         # Persist the username.
         echo "_USER_NAME=$USER_NAME" > "$OUTPUT_FILE"
-        break
-    done
+
 
     # -----------------------------------------------------------------------
     # Password: loop until a valid password is entered twice and matches.
     # Cancel here breaks out to the outer loop -> back to username.
     # -----------------------------------------------------------------------
     password_ok=0
-    while true; do
-        USER_PASSWD=$(dialog --clear --insecure  \
-            --backtitle "$BACKTITLE" \
-            --title "Create password" \
-            --passwordbox "Create user password.\n\nMinimum 4 characters, no spaces.\n(User and root password will be the same.)" 10 65 \
-            2>&1 > /dev/tty)
+    USER_PASSWD=$(dialog --clear --insecure  \
+        --backtitle "$BACKTITLE" \
+        --title "Create password" \
+        --passwordbox "Create user password.\n\nMinimum 4 characters, no spaces.\n(User and root password will be the same.)" 10 65 \
+        2>&1 > /dev/tty)
 
-        if [ $? -ne 0 ] || [ -z "$USER_PASSWD" ]; then
-            dialog --clear --title "Password" \
-                --msgbox "Password is required."  5 50  \
-                2>&1 > /dev/tty
-        fi
+    if [ $? -ne 0 ] || [ -z "$USER_PASSWD" ]; then
+        dialog --clear --title "Password" \
+            --msgbox "Password is required."  5 50  \
+            2>&1 > /dev/tty
+        continue
+    fi
 
-        if [[ ! "$USER_PASSWD" =~ ^[^[:space:]]{4,}$ ]]; then
-            dialog --clear --title "Invalid password" \
-                --msgbox "Invalid password.\n\nMinimum 4 characters, no spaces."  7 60  \
-                2>&1 > /dev/tty
-            continue
-        fi
+    if [[ ! "$USER_PASSWD" =~ ^[^[:space:]]{4,}$ ]]; then
+        dialog --clear --title "Invalid password" \
+            --msgbox "Invalid password.\n\nMinimum 4 characters, no spaces."  7 60  \
+            2>&1 > /dev/tty
+        continue
+    fi
 
-        CTRL_USER_PASSWD=$(dialog --clear --insecure  \
-            --backtitle "$BACKTITLE" \
-            --title "Confirm password" \
-            --passwordbox  "Please enter the password again for validation." 7 60 \
-            2>&1 > /dev/tty)
+    CTRL_USER_PASSWD=$(dialog --clear --insecure  \
+        --backtitle "$BACKTITLE" \
+        --title "Confirm password" \
+        --passwordbox  "Please enter the password again for validation." 7 60 \
+        2>&1 > /dev/tty)
 
-        if [ $? -ne 0 ] || [ -z "$CTRL_USER_PASSWD" ]; then
-            dialog --clear --title "Cancelled" \
-                --msgbox "Password confirmation is required. Returning to username."  5 50  \
-                2>&1 > /dev/tty
-            break   # back to username
-        fi
+    if [ $? -ne 0 ] || [ -z "$CTRL_USER_PASSWD" ]; then
+        dialog --clear --title "Cancelled" \
+            --msgbox "Password confirmation is required. Returning to username."  5 50  \
+            2>&1 > /dev/tty
+        break   # back to username
+    fi
 
-        if [[ ! "$CTRL_USER_PASSWD" =~ ^[^[:space:]]{4,}$ ]]; then
-            dialog --clear --title "Invalid password" \
-                --msgbox "Invalid password.\n\nMinimum 4 characters, no spaces."  5 50  \
-                2>&1 > /dev/tty
-            continue
-        fi
+    if [[ ! "$CTRL_USER_PASSWD" =~ ^[^[:space:]]{4,}$ ]]; then
+        dialog --clear --title "Invalid password" \
+            --msgbox "Invalid password.\n\nMinimum 4 characters, no spaces."  5 50  \
+            2>&1 > /dev/tty
+        continue
+    fi
 
         if [ "$CTRL_USER_PASSWD" != "$USER_PASSWD" ]; then
             dialog --clear --title "Passwords do not match" \
@@ -123,8 +120,6 @@ while true; do
         fi
 
         password_ok=1
-        break
-    done
 
     # If password was set successfully, we're done with the whole step.
     if [ "$password_ok" -eq 1 ]; then
@@ -134,7 +129,6 @@ while true; do
     # Otherwise outer loop continues -> username dialog again.
 
 done
-
 dialog --clear --title "User created" \
     --msgbox "User: $USER_NAME with password is created."  5 60  \
     2>&1 > /dev/tty

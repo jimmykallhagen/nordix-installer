@@ -10,6 +10,15 @@ OUTPUT_FILE_SPECIAL_LAYOUT="${CONFIG_DIR}/special-layout.conf"
 source "${MASTER_LIST}"
 
 clear
+leave() {
+    cp "$MASTER_LIST" "$OUTPUT_LIST_FILE"
+    clear
+    dialog --clear \
+        --backtitle "$BACKTITLE" \
+        --title "Note" \
+        --msgbox "Special Vdev can be added later, but never removed" 5 60
+    exit 1
+}
 
 BACKTITLE="Nordix Installer"
 
@@ -26,8 +35,13 @@ trap handle_interrupt INT TERM QUIT HUP
 
 dialog --clear \
     --backtitle "$BACKTITLE" \
-    --title "🐧Special Vdev🐧" \
-    --msgbox "ZFS Special Vdev - Metadata and small files on NVMe/SSD - Game changer for performance on HDD's" 5 100
+    --title "Special Vdev" \
+    --msgbox "ZFS Special Vdev - Metadata and small files on NVMe/SSD - Game changer for performance on HDD's
+    - Use on HDD's systems: Special Vdev store metadata and small files on NVMe/SSD to get SSD-like latency
+
+    Can be used on NVMe/SSD in some special cases like
+    - Example 1: One gen4 NVMe as Special Vdev and two gen3 NVMe's in striped zpool (the gen4 speeds match the two stripe gen3)
+    - Example 2: You have a larger sata SDD and a smaller NVMe, use the NVMe as special Vdev to boost the SATA SSD" 10 130
 
 if dialog --clear \
     --backtitle "$BACKTITLE" \
@@ -49,7 +63,7 @@ if dialog --clear \
     while true; do
         dialog --clear \
             --backtitle "$BACKTITLE" \
-            --title "🐧Special Vdev🐧" \
+            --title "Special Vdev" \
             --msgbox "Choose Layout For Special Vdev" 5 35
 
         menu_args=()
@@ -62,18 +76,20 @@ if dialog --clear \
         choice_idx=$(dialog --clear \
             --backtitle "$BACKTITLE" \
             --colors --color-mode 2 \
-            --title "Special Vdev Layout🐧" \
+            --title "Special Vdev Layout" \
             --stdout --menu "A Special Vdev stores all metadata, if you lose it, you lose your entire zpool.
-           Mirror is recommended." 0 90 4 "${menu_args[@]}")
+           - Mirror is recommended." 0 90 4 "${menu_args[@]}")
         ret=$?
 
         if [ $ret -ne 0 ] || [ -z "$choice_idx" ]; then
-            dialog --clear \
+            if dialog --clear \
                 --backtitle "$BACKTITLE" \
                 --title "Exit" \
-                --msgbox "Maybe next time." 5 40
-            cp "$MASTER_LIST" "$OUTPUT_LIST_FILE"
-            exit 1
+                --yesno "Do you want to cancel Special Vdev configuration?" 5 40; then
+                leave
+            else
+                continue
+            fi
         fi
 
         _SPECIAL_TEXT="${OPTIONS[$((choice_idx-1))]}"
@@ -146,12 +162,16 @@ if dialog --clear \
             ret=$?
 
             if [ $ret -ne 0 ] || [ -z "$selected_tags" ]; then
-                dialog --clear \
+                if dialog --clear \
                     --backtitle "$BACKTITLE" \
                     --title "Exit" \
-                    --msgbox "Maybe next time." 5 40
-                exit 1
+                    --yesno "Do you want to cancel Special Vdev configuration?" 5 40; then
+                    leave
+                else
+                    continue
+                fi
             fi
+
             selected_ids=""
             for tag in $selected_tags; do
                 idx=$((tag-1))
@@ -223,13 +243,6 @@ if dialog --clear \
         --title "Note" \
         --msgbox "Note: A Special Vdev can not be removed" 6 60
     exit 0
-
 else
-    cp "$MASTER_LIST" "$OUTPUT_LIST_FILE"
-    clear
-    dialog --clear \
-        --backtitle "$BACKTITLE" \
-        --title "Note" \
-        --msgbox "Special Vdev can be added later, but never removed" 6 60
-    exit 1
+  leave
 fi

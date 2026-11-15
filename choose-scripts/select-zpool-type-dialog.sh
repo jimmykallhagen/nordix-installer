@@ -81,7 +81,6 @@ while true; do
         continue
     fi
 
-
     # Map menu index back to actual option text
     # Rebuild array without empties to find text
     opt_index=0
@@ -93,8 +92,6 @@ while true; do
             break
         fi
     done
-
-
 
     case "$CHOICE_TEXT" in
         "ZFS Single           : 1  drive, no redundancy") ZPOOL="single" ;;
@@ -189,6 +186,7 @@ while true; do
             --colors --color-mode 2 \
             --stdout --checklist "\Z4Select device[s] for your root Zpool" 20 80 10 "${checklist_args[@]}")
         ret=$?
+
         if [ $ret -ne 0 ] || [ -z "$selected_tags" ]; then
             dialog --clear \
                 --backtitle "$BACKTITLE" \
